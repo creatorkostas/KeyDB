@@ -12,6 +12,8 @@ func AuthRequired() gin.HandlerFunc {
 		t := time.Now()
 
 		// // Set example variable
+		log.Println(c.MustGet(gin.AuthUserKey))
+
 		if 1 == 1 {
 			c.Next()
 		}

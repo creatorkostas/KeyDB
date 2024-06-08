@@ -15,6 +15,12 @@ func cleanup() {
 	tools.Save()
 }
 
+var accounts gin.Accounts = gin.Accounts{"kostas": "1"}
+
+// var accounts gin.Accounts = make(gin.Accounts, 5)
+
+// accounts["kostas"] = "1"
+
 func main() {
 	// gin.SetMode(gin.ReleaseMode)
 	gin.SetMode(gin.DebugMode)
@@ -30,6 +36,7 @@ func main() {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
 
+	router.Use(gin.BasicAuth(accounts))
 	// Per route middleware, you can add as many as you desire.
 	// router.GET("/benchmark", MyBenchLogger(), benchEndpoint)
 
@@ -45,7 +52,7 @@ func main() {
 		admin := authorized.Group("/admin")
 		admin.Use(middleware.IsAdmin())
 		{
-			admin.GET("/getSample", api.GetSample)
+			// admin.GET("/getSample", api.GetSample)
 			admin.GET("/save", api.Save)
 			admin.GET("/load", api.Load)
 
