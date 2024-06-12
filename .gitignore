@@ -22,3 +22,5 @@ go.work
 go.work.sum
 
 DB.gob
+accounts.gob
+db.gob

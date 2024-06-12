@@ -4,14 +4,11 @@ import (
 	"encoding/gob"
 	"log"
 	"os"
-
-	"github.com/creatorkostas/KeyDB/api"
 )
 
-func Save() {
+func SaveDB(filename string, data any) {
 	// Create a file for IO
-	log.Println("test")
-	encodeFile, err := os.Create("db.gob")
+	encodeFile, err := os.Create(filename)
 	if err != nil {
 		log.Println("err")
 		panic(err)
@@ -19,19 +16,20 @@ func Save() {
 
 	encoder := gob.NewEncoder(encodeFile)
 
-	if err := encoder.Encode(&api.DB); err != nil {
+	if err := encoder.Encode(data); err != nil {
 		log.Println(err)
 		panic(err)
 	}
 	encodeFile.Close()
-	log.Println("test2")
 
 }
 
-func Load() {
-	decodeFile, err := os.Open("db.gob")
+func LoadDB(filename string, data any) {
+	decodeFile, err := os.Open(filename)
+	// decodeFile, err := os.Open("db.gob")
 	if err != nil {
-		panic(err)
+		log.Println("Possible the file does not exist!!")
+		// panic(err)
 	}
 	defer decodeFile.Close()
 
@@ -41,6 +39,6 @@ func Load() {
 	// accounts2 := make(map[string]Account)
 
 	// Decode -- We need to pass a pointer otherwise accounts2 isn't modified
-	decoder.Decode(&api.DB)
+	decoder.Decode(data)
 
 }
