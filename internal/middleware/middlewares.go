@@ -78,3 +78,17 @@ func IsAdmin() gin.HandlerFunc {
 
 	}
 }
+
+// func cors() gin.HandlerFunc {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		w.Header().Add("Access-Control-Allow-Origin", "*")
+// 		handler.ServeHTTP(w, r)
+// 	})
+// }
+
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Add("Access-Control-Allow-Origin", "*")
+		c.Next()
+	}
+}

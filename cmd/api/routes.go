@@ -6,13 +6,11 @@ import (
 
 	"github.com/creatorkostas/KeyDB/api"
 	"github.com/creatorkostas/KeyDB/internal/middleware"
+	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
-
 	limit "github.com/yangxikun/gin-limit-by-key"
 	"golang.org/x/time/rate"
-
-	helmet "github.com/danielkov/gin-helmet"
 )
 
 func Setup_router(router *gin.Engine) {
@@ -40,8 +38,7 @@ func Setup_router(router *gin.Engine) {
 
 func Add_endpointis(router *gin.Engine) {
 
-	// router.GET("/benchmark", MyBenchLogger(), benchEndpoint)
-	router.POST("/register", api.Register)
+	router.POST("/api/register", api.Register)
 
 	authorized := router.Group("/api/:user")
 	// per group middleware! in this case we use the custom created

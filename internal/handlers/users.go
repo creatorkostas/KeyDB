@@ -50,7 +50,7 @@ func Get_account(username string) *Account {
 }
 
 func Create_account(username string, acc_tier string, email string, password string) *Account {
-	if Get_account(username) == nil {
+	if Get_account(username) != nil {
 		return nil
 	}
 	var api_string = username + email + password
