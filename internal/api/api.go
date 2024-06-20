@@ -17,11 +17,6 @@ func GetValue(c *gin.Context) {
 
 	var acc = c.MustGet("Account").(*users.Account)
 
-	if !acc.CanGet() {
-		c.JSON(http.StatusUnauthorized, "Unauth")
-		return
-	}
-
 	var result any
 	if found {
 		result = database.Get_value(acc.Username, key)
@@ -38,11 +33,6 @@ func GetValue(c *gin.Context) {
 func SetValues(c *gin.Context) {
 
 	var acc = c.MustGet("Account").(*users.Account)
-
-	if !acc.CanAdd() {
-		c.JSON(http.StatusUnauthorized, "Key does not exist")
-		return
-	}
 
 	var key, _ = c.GetQuery("key")
 

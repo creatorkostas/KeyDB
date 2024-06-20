@@ -23,12 +23,16 @@ func Create_account(username string, acc_tier string, email string, password str
 	}
 	var api_string = username + email + password + time.Now().String()
 
-	var tier Tier = Default_tier
-	tier.MakeAdmin()
-	var acc = Account{
-		UserInfo:     UserInfo{Username: username, Api_key: hash(api_string)[0:16], Email: email, Password: hash(password)},
-		AccountState: AccountState{true, -1, time.Minute * 60 * 24, 100 * time.Millisecond, 10},
-		Tier:         tier}
+	var acc Account = MakeDefaultUser()
+	var userInfo UserInfo = UserInfo{Username: username, Api_key: hash(api_string)[0:16], Email: email, Password: hash(password)}
+	acc.UserInfo = userInfo
+	acc.MakeUser()
+	// var tier Tier = Default_tier
+	// tier.MakeUser()
+	// var acc = Account{
+	// 	UserInfo:     UserInfo{Username: username, Api_key: hash(api_string)[0:16], Email: email, Password: hash(password)},
+	// 	AccountState: AccountState{true, -1, time.Minute * 60 * 24, 100 * time.Millisecond, 10},
+	// 	Tier:         tier}
 
 	Accounts = append(Accounts, acc)
 	database.MakeUserDB(acc.Username)

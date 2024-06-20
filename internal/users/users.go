@@ -4,6 +4,7 @@ const (
 	ADMIN     = 0
 	USER      = 1
 	FREE_USER = 2
+	DEFAULT   = 3
 )
 
 const (
@@ -48,10 +49,30 @@ func (acc Account) CanGetAnalytics() bool {
 	return acc.Tier.Rules.Analytics
 }
 
-// func (acc Account) CheckPermissions(permission int) {
-// 	switch permission {
-// 	case 0:
-// 	}
-// }
+func MakeDefaultUser() Account {
+	var acc Account
+	acc.Tier.Type = DEFAULT
+	acc.Tier.Rules = Default_rules
+	acc.AccountState = Default_state
+	return acc
+}
+
+func (acc *Account) MakeAdmin() {
+	acc.Tier.Type = ADMIN
+	acc.Tier.Rules = Admin_rules
+	acc.AccountState = Admin_state
+}
+
+func (acc *Account) MakeUser() {
+	acc.Tier.Type = USER
+	acc.Tier.Rules = User_rules
+	acc.AccountState = User_state
+}
+
+func (acc *Account) MakeFreeUser() {
+	acc.Tier.Type = FREE_USER
+	acc.Tier.Rules = Free_user_rules
+	acc.AccountState = Free_user_state
+}
 
 var Accounts = make([]Account, 50)
