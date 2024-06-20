@@ -48,7 +48,6 @@ func SetValues(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	// Create_account(username string, acc_tier string, email string, password string)
 
 	var username, _ = c.GetQuery("username")
 	// var acc_tier, _ = c.GetQuery("acc_tier")

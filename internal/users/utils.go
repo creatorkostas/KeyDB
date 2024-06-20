@@ -26,13 +26,13 @@ func Create_account(username string, acc_tier string, email string, password str
 	var acc Account = MakeDefaultUser()
 	var userInfo UserInfo = UserInfo{Username: username, Api_key: hash(api_string)[0:16], Email: email, Password: hash(password)}
 	acc.UserInfo = userInfo
-	acc.MakeUser()
-	// var tier Tier = Default_tier
-	// tier.MakeUser()
-	// var acc = Account{
-	// 	UserInfo:     UserInfo{Username: username, Api_key: hash(api_string)[0:16], Email: email, Password: hash(password)},
-	// 	AccountState: AccountState{true, -1, time.Minute * 60 * 24, 100 * time.Millisecond, 10},
-	// 	Tier:         tier}
+	if acc_tier == "Admin" {
+		acc.MakeAdmin()
+	} else if acc_tier == "User" {
+		acc.MakeUser()
+	} else if acc_tier == "FreeUser" {
+		acc.MakeFreeUser()
+	}
 
 	Accounts = append(Accounts, acc)
 	database.MakeUserDB(acc.Username)
