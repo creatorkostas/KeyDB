@@ -6,12 +6,13 @@ import (
 	"os"
 )
 
-func SaveDB(filename string, data any) {
+func SaveToFile(filename string, data any) error {
 	// Create a file for IO
 	encodeFile, err := os.Create(filename)
 	if err != nil {
-		log.Println("err")
-		panic(err)
+		// log.Println("err")
+		// panic(err)
+		return err
 	}
 
 	encoder := gob.NewEncoder(encodeFile)
@@ -22,14 +23,16 @@ func SaveDB(filename string, data any) {
 	}
 	encodeFile.Close()
 
+	return nil
 }
 
-func LoadDB(filename string, data any) {
+func LoadFromFile(filename string, data any) error {
 	decodeFile, err := os.Open(filename)
 	// decodeFile, err := os.Open("db.gob")
 	if err != nil {
 		log.Println("Possible the file does not exist!!")
 		// panic(err)
+		return err
 	}
 	defer decodeFile.Close()
 
@@ -41,4 +44,5 @@ func LoadDB(filename string, data any) {
 	// Decode -- We need to pass a pointer otherwise accounts2 isn't modified
 	decoder.Decode(data)
 
+	return nil
 }

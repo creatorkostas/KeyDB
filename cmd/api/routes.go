@@ -1,16 +1,11 @@
 package cmd_api
 
 import (
-	"net/http"
-	"time"
-
-	"github.com/creatorkostas/KeyDB/api"
+	"github.com/creatorkostas/KeyDB/internal/api"
 	"github.com/creatorkostas/KeyDB/internal/middleware"
 	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
-	limit "github.com/yangxikun/gin-limit-by-key"
-	"golang.org/x/time/rate"
 )
 
 func Setup_router(router *gin.Engine) {
@@ -26,14 +21,7 @@ func Setup_router(router *gin.Engine) {
 
 	router.Use(stats.RequestStats())
 
-	router.Use(limit.NewRateLimiter(func(c *gin.Context) string {
-		return c.ClientIP() // limit rate by client ip
-	}, func(c *gin.Context) (*rate.Limiter, time.Duration) {
-		// limit 10 qps/clientIp and permit bursts of at most 10 tokens, and the limiter liveness time duration is 1 hour
-		return rate.NewLimiter(rate.Every(100*time.Millisecond), 10), time.Minute * 60
-	}, func(c *gin.Context) {
-		c.AbortWithStatus(429) // handle exceed rate limit request
-	}))
+	// router.Use(middleware.AddLimiter())
 }
 
 func Add_endpointis(router *gin.Engine) {
@@ -45,9 +33,10 @@ func Add_endpointis(router *gin.Engine) {
 	// AuthRequired() middleware just in the "authorized" group.
 	authorized.Use(middleware.AuthRequired())
 	{
-		authorized.GET("/get", api.GetValue)
-		authorized.GET("/get_all", api.GetAll)
-		authorized.POST("/set", api.SetValues)
+		authorized.GET("/get", middleware.CanGet(), api.GetValue)
+		authorized.GET("/get_all", middleware.CanGet(), api.GetValue)
+		authorized.POST("/set", middleware.CanGetAdd(), api.SetValues)
+		authorized.GET("/stats", middleware.CanGetAnalytics(), api.GetStats)
 
 		// // nested group
 		admin := authorized.Group("/admin")
@@ -55,10 +44,6 @@ func Add_endpointis(router *gin.Engine) {
 		{
 			admin.GET("/save", api.Save)
 			admin.GET("/load", api.Load)
-			admin.GET("/stats", func(c *gin.Context) {
-				c.JSON(http.StatusOK, stats.Report())
-			})
-
 		}
 	}
 }

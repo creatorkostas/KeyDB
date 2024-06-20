@@ -24,4 +24,5 @@ go.work.sum
 DB.gob
 accounts.gob
 db.gob
-db.gob
+
+frontend/

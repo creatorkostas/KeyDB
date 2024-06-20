@@ -2,11 +2,34 @@ package middleware
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/creatorkostas/KeyDB/api"
-	"github.com/creatorkostas/KeyDB/internal/handlers"
+	"github.com/creatorkostas/KeyDB/internal/api"
+	"github.com/creatorkostas/KeyDB/internal/users"
 	"github.com/gin-gonic/gin"
+	limit "github.com/yangxikun/gin-limit-by-key"
+	"golang.org/x/time/rate"
 )
+
+func getIP(c *gin.Context) string {
+	return c.ClientIP() // limit rate by client ip
+}
+
+func limiter(c *gin.Context) (*rate.Limiter, time.Duration) {
+	var acc = c.MustGet("Account").(*users.Account)
+	// limit 10 qps/clientIp and permit bursts of at most 10 tokens, and the limiter liveness time duration is 1 hour
+	return rate.NewLimiter(rate.Every(acc.Burst_time), acc.Burst_tokens), acc.Rate_reset
+}
+
+func abort(c *gin.Context) {
+	c.AbortWithStatus(429) // handle exceed rate limit request
+}
+
+func AddLimiter() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		limit.NewRateLimiter(getIP, limiter, abort)
+	}
+}
 
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -17,60 +40,58 @@ func AuthRequired() gin.HandlerFunc {
 
 		var user = c.Param("user")
 
-		var acc = handlers.Get_account(user)
-
 		if !api_found {
-			c.IndentedJSON(http.StatusUnauthorized, api.Responce{Message: "api_key req"})
+			c.JSON(http.StatusUnauthorized, api.JsonResponce{Message: "api_key req"})
 			c.Abort()
-			// }
-			// else if !user_found {
-			// c.IndentedJSON(http.StatusUnauthorized, api.Responce{Message: "user req"})
-			// c.Abort()
-		} else if acc == nil {
-			c.IndentedJSON(http.StatusUnauthorized, api.Responce{Message: "account not found"})
+		}
+
+		var acc = users.Get_account(user)
+
+		if acc == nil {
+			c.JSON(http.StatusUnauthorized, api.JsonResponce{Message: "account not found"})
 			c.Abort()
 		} else {
-			// if accounts[user] == api_key {
-			// log.Println(acc.Api_key)
-			// log.Println(acc.Username)
-			// log.Println(api_key)
-			// log.Println(user)
+			if acc.Tokens == 0 {
+				c.JSON(429, api.JsonResponce{Message: "Your tokens have reach zero!"})
+				c.Abort()
+			} else {
+				acc.Tokens -= 1
+			}
+			c.Set("Account", acc)
+
 			if acc.Api_key == api_key && acc.Username == user {
 				c.Set("pass", true)
 				c.Next()
 			} else {
-				c.IndentedJSON(http.StatusUnauthorized, api.Responce{Message: "wrong user - api"})
+				c.JSON(http.StatusUnauthorized, api.JsonResponce{Message: "wrong user - api"})
 				c.Abort()
 			}
 		}
-
-		// // Set example variable
-
-		// if c.MustGet(gin.AuthUserKey) != nil {
-		// 	c.Next()
-		// }
-		// c.Set("pass", true)
-
-		// before request
-
-		// after request
-		// latency := time.Since(t)
-		// log.Print(latency)
-
-		// access the status we are sending
-		// status := c.Writer.Status()
-		// log.Println(status)
 	}
 }
 
 func IsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user = c.Param("user")
 
-		var acc = handlers.Get_account(user)
+		var acc = c.MustGet("Account").(*users.Account)
 
-		// if accounts_roles[user] == "Admin" {
-		if acc.Tier.Type == handlers.ADMIN {
+		if acc.IsAdmin() {
+			c.Next()
+			c.Set("Admin", true)
+		} else {
+			c.Set("Admin", false)
+			c.Abort()
+		}
+
+	}
+}
+
+func CanGetAnalytics() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var acc = c.MustGet("Account").(*users.Account)
+
+		if acc.CanGetAnalytics() {
 			c.Next()
 		} else {
 			c.Abort()
@@ -79,12 +100,33 @@ func IsAdmin() gin.HandlerFunc {
 	}
 }
 
-// func cors() gin.HandlerFunc {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Add("Access-Control-Allow-Origin", "*")
-// 		handler.ServeHTTP(w, r)
-// 	})
-// }
+func CanGet() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var acc = c.MustGet("Account").(*users.Account)
+
+		if acc.CanGet() {
+			c.Next()
+		} else {
+			c.Abort()
+		}
+
+	}
+}
+
+func CanGetAdd() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var acc = c.MustGet("Account").(*users.Account)
+
+		if acc.CanAdd() {
+			c.Next()
+		} else {
+			c.Abort()
+		}
+
+	}
+}
 
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
