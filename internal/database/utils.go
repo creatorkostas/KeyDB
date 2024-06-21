@@ -6,20 +6,9 @@ import (
 	"log"
 	"math"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-// FF
-// FF
-// FF
-// FF
-// FF
-// FF
-// FF
-// F
-
-func Add_value(user string, key string, value_type string, c *gin.Context) bool {
+func Add_value(user string, key string, value_type string, data string) bool {
 	var ret bool = false
 	DB_val := makeDefault_DB_value()
 
@@ -28,7 +17,6 @@ func Add_value(user string, key string, value_type string, c *gin.Context) bool 
 	switch value_type {
 	case "int":
 		DB_val.Value_type = 0
-		var data, _ = c.GetQuery("value")
 		var d, _ = strconv.Atoi(data)
 		DB_val.Data = make([]byte, 8)
 		for i := 0; i < 8; i++ {
@@ -36,13 +24,10 @@ func Add_value(user string, key string, value_type string, c *gin.Context) bool 
 		}
 	case "string":
 		DB_val.Value_type = 1
-		DB_val.Data = []byte(c.GetString("value"))
+		DB_val.Data = []byte(data)
 	case "float32":
 		DB_val.Value_type = 2
-
 		DB_val.Data = make([]byte, 4)
-
-		var data, _ = c.GetQuery("value")
 		float, err := strconv.ParseFloat(data, 32)
 
 		if err != nil {
@@ -59,7 +44,6 @@ func Add_value(user string, key string, value_type string, c *gin.Context) bool 
 		DB_val.Value_type = 3
 		DB_val.Data = make([]byte, 8)
 
-		var data, _ = c.GetQuery("value")
 		float, err := strconv.ParseFloat(data, 64)
 
 		if err != nil {
@@ -74,10 +58,10 @@ func Add_value(user string, key string, value_type string, c *gin.Context) bool 
 	case "bool":
 		DB_val.Value_type = 4
 		DB_val.Data = make([]byte, 1)
-		var value, _ = c.GetQuery("value")
-		if value == "0" || value == "false" {
+
+		if data == "0" || data == "false" {
 			DB_val.Data[0] = 0x00
-		} else if value == "1" || value == "true" {
+		} else if data == "1" || data == "true" {
 			DB_val.Data[0] = 0x01
 		}
 

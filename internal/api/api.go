@@ -27,7 +27,7 @@ func GetValue(c *gin.Context) {
 	}
 
 	var res = &Responce{C: c, ErrorMessage: "Key does not exist", Result: result, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
-	sendResponce(res)
+	res.sendResponce()
 
 }
 
@@ -35,17 +35,29 @@ func GetValue(c *gin.Context) {
 func SetValues(c *gin.Context) {
 
 	var acc = c.MustGet("Account").(*users.Account)
+	var key, key_found = c.GetQuery("key")
+	var value_type, value_type_found = c.GetQuery("type")
+	var data, data_found = c.GetQuery("value")
 
-	var key, _ = c.GetQuery("key")
+	var error_message string = "Something went wrong!"
+	var error_code int = http.StatusInternalServerError
+	var ok bool
+	var err error = nil
 
-	var value_type, _ = c.GetQuery("type")
+	if key_found && value_type_found && data_found {
+		ok = database.Add_value(acc.Username, key, value_type, data)
+		err = nil
+	} else {
+		error_message = fmt.Sprintf(
+			"Missings parameters!! key found: %s , value_type found: %s , data found: %s",
+			strconv.FormatBool(key_found),
+			strconv.FormatBool(value_type_found),
+			strconv.FormatBool(data_found))
+		error_code = http.StatusBadRequest
+	}
 
-	// var value, _ = c.GetQuery("value")
-
-	var ok = database.Add_value(acc.Username, key, value_type, c)
-
-	var res = &Responce{C: c, ErrorMessage: "Error", Result: ok, OkCode: http.StatusOK, ErrorCode: http.StatusInternalServerError}
-	sendResponce(res)
+	var res = &Responce{C: c, ErrorMessage: error_message, Result: ok, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	res.sendResponce()
 
 }
 
@@ -73,14 +85,14 @@ func Register(c *gin.Context) {
 	}
 
 	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code}
-	sendResponce(res)
+	res.sendResponce()
 }
 
 func ChangeApiKey(c *gin.Context) {
 	var acc = c.MustGet("Account").(*users.Account)
 	acc.ChangeApiKey()
 	var res = &Responce{C: c, ErrorMessage: "Something went wrong!", Result: acc, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
-	sendResponce(res)
+	res.sendResponce()
 }
 
 func ChangePassword(c *gin.Context) {
@@ -96,7 +108,7 @@ func ChangePassword(c *gin.Context) {
 		acc = nil
 	}
 	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code}
-	sendResponce(res)
+	res.sendResponce()
 }
 
 func GetStats(c *gin.Context) {
