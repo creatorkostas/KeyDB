@@ -1,5 +1,7 @@
 package users
 
+import "time"
+
 const (
 	ADMIN     = 0
 	USER      = 1
@@ -25,27 +27,39 @@ type Account struct {
 	Tier Tier
 }
 
-func (acc Account) IsAdmin() bool {
+func (acc *Account) IsAdmin() bool {
 	return acc.Tier.Rules.Admin
 }
 
-func (acc Account) CanAdd() bool {
+func (acc *Account) CanAdd() bool {
 	return acc.Tier.Rules.Add
 }
 
-func (acc Account) CanGet() bool {
+func (acc *Account) CanGet() bool {
 	return acc.Tier.Rules.Get
 }
 
-func (acc Account) CanChangePassword() bool {
+func (acc *Account) CanChangePassword() bool {
 	return acc.Tier.Rules.Change_password
 }
 
-func (acc Account) CanChangeApiKey() bool {
+func (acc *Account) ChangePassword(new_password string) bool {
+	var new_pass string = hash(new_password)
+	acc.UserInfo.Api_key = new_pass
+	return true
+}
+
+func (acc *Account) CanChangeApiKey() bool {
 	return acc.Tier.Rules.Change_api_key
 }
 
-func (acc Account) CanGetAnalytics() bool {
+func (acc *Account) ChangeApiKey() string {
+	var new_api_key string = hash(acc.Username + acc.Email + acc.Password + time.Now().String())[0:16]
+	acc.UserInfo.Api_key = new_api_key
+	return new_api_key
+}
+
+func (acc *Account) CanGetAnalytics() bool {
 	return acc.Tier.Rules.Analytics
 }
 
