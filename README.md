@@ -36,6 +36,8 @@ Method: POST
 
 Set a new value or update it if the key already exist
 
+Available types: string, int, float64, float32, bool
+
 - `/api/v1/:user/stats?api_key={API_KEY}`
 
 Method: GET
