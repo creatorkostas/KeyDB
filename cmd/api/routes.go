@@ -20,15 +20,16 @@ func Setup_router(router *gin.Engine) {
 	router.Use(gin.Recovery())
 
 	router.Use(stats.RequestStats())
+	// router.Use(middleware.Cors())
 
 	// router.Use(middleware.AddLimiter())
 }
 
 func Add_endpointis(router *gin.Engine) {
 
-	router.POST("/api/register", api.Register)
+	router.GET("/api/v1/register", api.Register)
 
-	authorized := router.Group("/api/:user")
+	authorized := router.Group("/api/v1/:user")
 	// per group middleware! in this case we use the custom created
 	// AuthRequired() middleware just in the "authorized" group.
 	authorized.Use(middleware.AuthRequired())

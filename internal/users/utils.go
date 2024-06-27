@@ -35,7 +35,7 @@ func Create_account(username string, acc_tier string, email string, password str
 	}
 
 	Accounts = append(Accounts, acc)
-	database.MakeUserDB(acc.Username)
+	database.MakeTable(acc.Username)
 	return &acc
 }
 

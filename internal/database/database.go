@@ -4,6 +4,22 @@ import (
 	"sync"
 )
 
+const (
+	INT     = "int"
+	STRING  = "string"
+	FLOAT32 = "float32"
+	FLOAT64 = "float64"
+	BOOL    = "bool"
+)
+
+const (
+	INT_INT     = 0
+	INT_STRING  = 1
+	INT_FLOAT32 = 2
+	INT_FLOAT64 = 3
+	INT_BOOL    = 4
+)
+
 var m = sync.RWMutex{}
 
 type DB_value struct {

@@ -1,7 +1,9 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -23,7 +25,7 @@ func GetValue(c *gin.Context) {
 	if found {
 		result = database.Get_value(acc.Username, key)
 	} else {
-		result = database.Get_value(acc.Username, "user.get.all.data")
+		result = database.Get_value(acc.Username, "table.get.all.data")
 	}
 
 	var res = &Responce{C: c, ErrorMessage: "Key does not exist", Result: result, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
@@ -41,12 +43,10 @@ func SetValues(c *gin.Context) {
 
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
-	var ok bool
 	var err error = nil
 
 	if key_found && value_type_found && data_found {
-		ok = database.Add_value(acc.Username, key, value_type, data)
-		err = nil
+		err = database.Add_value(acc.Username, key, value_type, data)
 	} else {
 		error_message = fmt.Sprintf(
 			"Missings parameters!! key found: %s , value_type found: %s , data found: %s",
@@ -56,7 +56,7 @@ func SetValues(c *gin.Context) {
 		error_code = http.StatusBadRequest
 	}
 
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: ok, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	var res = &Responce{C: c, ErrorMessage: error_message, Result: true, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
 	res.sendResponce()
 
 }
@@ -71,9 +71,14 @@ func Register(c *gin.Context) {
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
 	var acc *users.Account = nil
+	var err error = errors.New("something went wrong")
 
 	if username_found && email_found && password_found && acc_type_found {
 		acc = users.Create_account(username, acc_type, email, password)
+		log.Println("yesss")
+		if acc != nil {
+			err = nil
+		}
 	} else {
 		error_message = fmt.Sprintf(
 			"Missings parameters!! username found: %s , email found: %s , password found: %s , acc_type found: %s",
@@ -84,7 +89,9 @@ func Register(c *gin.Context) {
 		error_code = http.StatusBadRequest
 	}
 
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code}
+	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	log.Println(res)
+	log.Println(acc)
 	res.sendResponce()
 }
 

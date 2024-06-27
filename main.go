@@ -9,49 +9,27 @@ import (
 	cmd_api "github.com/creatorkostas/KeyDB/cmd/api"
 	"github.com/creatorkostas/KeyDB/internal"
 	"github.com/creatorkostas/KeyDB/internal/database"
+	aof "github.com/creatorkostas/KeyDB/internal/persistance"
 	"github.com/creatorkostas/KeyDB/internal/tools"
 	"github.com/creatorkostas/KeyDB/internal/users"
 	"github.com/gin-gonic/gin"
 )
 
 // var DB_filename string = "db.gob"
+var router = gin.New()
 
 func cleanup() {
 	tools.SaveToFile(internal.DB_filename, &database.DB)
 	tools.SaveToFile(internal.Accounts_filename, &users.Accounts)
+	aof.Operations <- "||exit||"
 }
 
-func main() {
-
-	devMode := false
-	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
-	flag.Parse()
-
+func initialize() {
 	// gin.SetMode(gin.ReleaseMode)
 	gin.SetMode(gin.DebugMode)
 
-	// Creates a router without any middleware by default
-	router := gin.New()
-
-	// // mux.Handle("/admin/", frontend.SvelteKitHandler("/admin"))
-
-	// router.GET("/admin/", gin.WrapH(frontend.SvelteKitHandler("./frontend")))
-	// if devMode {
-	// 	router.Use(middleware.Cors())
-	// 	fmt.Println("server running in dev mode")
-	// }
-
-	cmd_api.Setup_router(router)
-	cmd_api.Add_endpointis(router)
-	// // router.Static("/_app/immutable/", "./frontend/.svelte-kit/output/client/ ")
-	// router.Static("/sta", "./frontend/.svelte-kit/output/")
-	// router.StaticFS("/index", http.Dir("./frontend/.svelte-kit/output/prerendered/pages/"))
-	// router.StaticFS("/register", http.Dir("./frontend/.svelte-kit/output/prerendered/pages/"))
-
 	tools.LoadFromFile(internal.DB_filename, &database.DB)
 	tools.LoadFromFile(internal.Accounts_filename, &users.Accounts)
-
-	router.Run(":8080")
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -60,5 +38,24 @@ func main() {
 		<-c
 		os.Exit(1)
 	}()
+
+	aof.Start_writers(1)
+
+	cmd_api.Setup_router(router)
+	cmd_api.Add_endpointis(router)
+
+}
+
+func main() {
+
+	devMode := false
+	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
+	flag.Parse()
+
+	// fmt.Println(database_test.Run_write_test(100))
+	// fmt.Println(database_test.Run_read_test(10000))
+
+	initialize()
+	router.Run(":8080")
 
 }
