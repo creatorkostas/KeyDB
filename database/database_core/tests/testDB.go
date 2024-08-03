@@ -1,12 +1,11 @@
 package database_test
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"sync"
 	"time"
 
-	"github.com/creatorkostas/KeyDB/internal/database"
+	database "github.com/creatorkostas/KeyDB/database/database_core"
 )
 
 var wg sync.WaitGroup
@@ -49,9 +48,9 @@ func Run_write_test(concurent_writes int) string {
 	now := time.Now()
 	for i := 0; i < concurent_writes; i++ {
 		wg.Add(1)
-		var val_int = rand.IntN(valus_num)
-		database.Add_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)], values[val_int]["type"], values[val_int]["value"])
 		go func() {
+			var val_int = rand.IntN(valus_num)
+			database.Add_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)], values[val_int]["type"], values[val_int]["value"])
 			wg.Done()
 		}()
 	}
@@ -68,8 +67,10 @@ func Run_read_test(concurent_writes int) string {
 	now := time.Now()
 	for i := 0; i < concurent_writes; i++ {
 		wg.Add(1)
-		fmt.Println(database.Get_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)]))
 		go func() {
+			// fmt.Println(
+			database.Get_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)])
+			// )
 			wg.Done()
 		}()
 	}

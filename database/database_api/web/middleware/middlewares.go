@@ -1,11 +1,11 @@
-package middleware
+package web_api_middleware
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/creatorkostas/KeyDB/internal/api"
-	"github.com/creatorkostas/KeyDB/internal/users"
+	"github.com/creatorkostas/KeyDB/database/database_api/web/api"
+	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	"github.com/gin-gonic/gin"
 	limit "github.com/yangxikun/gin-limit-by-key"
 	"golang.org/x/time/rate"

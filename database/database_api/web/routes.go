@@ -1,8 +1,8 @@
-package cmd_api
+package web_api
 
 import (
-	"github.com/creatorkostas/KeyDB/internal/api"
-	"github.com/creatorkostas/KeyDB/internal/middleware"
+	"github.com/creatorkostas/KeyDB/database/database_api/web/api"
+	middleware "github.com/creatorkostas/KeyDB/database/database_api/web/middleware"
 	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
@@ -25,7 +25,7 @@ func Setup_router(router *gin.Engine) {
 	// router.Use(middleware.AddLimiter())
 }
 
-func Add_endpointis(router *gin.Engine) {
+func Add_endpoints(router *gin.Engine) {
 
 	router.GET("/api/v1/register", api.Register)
 

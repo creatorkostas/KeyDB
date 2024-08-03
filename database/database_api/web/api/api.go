@@ -3,26 +3,25 @@ package api
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/creatorkostas/KeyDB/internal"
-	"github.com/creatorkostas/KeyDB/internal/database"
-	"github.com/creatorkostas/KeyDB/internal/tools"
-	"github.com/creatorkostas/KeyDB/internal/users"
+	database "github.com/creatorkostas/KeyDB/database/database_core"
+	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
+	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
+	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
 )
 
 func GetValue(c *gin.Context) {
 
-	var key, found = c.GetQuery("key")
+	var key, key_found = c.GetQuery("key")
 
 	var acc = c.MustGet("Account").(*users.Account)
 
 	var result any
-	if found {
+	if key_found {
 		result = database.Get_value(acc.Username, key)
 	} else {
 		result = database.Get_value(acc.Username, "table.get.all.data")
@@ -75,7 +74,7 @@ func Register(c *gin.Context) {
 
 	if username_found && email_found && password_found && acc_type_found {
 		acc = users.Create_account(username, acc_type, email, password)
-		log.Println("yesss")
+		// log.Println("yesss")
 		if acc != nil {
 			err = nil
 		}
@@ -90,8 +89,8 @@ func Register(c *gin.Context) {
 	}
 
 	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
-	log.Println(res)
-	log.Println(acc)
+	// log.Println(res)
+	// log.Println(acc)
 	res.sendResponce()
 }
 
@@ -124,15 +123,15 @@ func GetStats(c *gin.Context) {
 }
 
 func Save(c *gin.Context) {
-	tools.SaveToFile(internal.DB_filename, &database.DB)
-	tools.SaveToFile(internal.Accounts_filename, &users.Accounts)
+	persistance.SaveToFile(internal.DB_filename, &database.DB)
+	persistance.SaveToFile(internal.Accounts_filename, &users.Accounts)
 
 	c.JSON(http.StatusOK, JsonResponce{"ok"})
 }
 
 func Load(c *gin.Context) {
-	tools.LoadFromFile(internal.DB_filename, &database.DB)
-	tools.LoadFromFile(internal.Accounts_filename, &users.Accounts)
+	persistance.LoadFromFile(internal.DB_filename, &database.DB)
+	persistance.LoadFromFile(internal.Accounts_filename, &users.Accounts)
 
 	c.JSON(http.StatusOK, JsonResponce{"ok"})
 }

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/creatorkostas/KeyDB/internal"
+	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,11 +1,9 @@
 package users
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"time"
 
-	"github.com/creatorkostas/KeyDB/internal/database"
+	database "github.com/creatorkostas/KeyDB/database/database_core"
 )
 
 func Get_account(username string) *Account {
@@ -37,10 +35,4 @@ func Create_account(username string, acc_tier string, email string, password str
 	Accounts = append(Accounts, acc)
 	database.MakeTable(acc.Username)
 	return &acc
-}
-
-func hash(s string) string {
-	h := sha256.New()
-	h.Write([]byte(s))
-	return hex.EncodeToString(h.Sum(nil))
 }

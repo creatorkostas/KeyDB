@@ -2,60 +2,60 @@ package main
 
 import (
 	"flag"
-	"os"
-	"os/signal"
-	"syscall"
 
-	cmd_api "github.com/creatorkostas/KeyDB/cmd/api"
-	"github.com/creatorkostas/KeyDB/internal"
-	"github.com/creatorkostas/KeyDB/internal/database"
-	aof "github.com/creatorkostas/KeyDB/internal/persistance"
-	"github.com/creatorkostas/KeyDB/internal/tools"
-	"github.com/creatorkostas/KeyDB/internal/users"
+	cmd_api "github.com/creatorkostas/KeyDB/database/database_api/cmd"
+	web_api "github.com/creatorkostas/KeyDB/database/database_api/web"
+	database "github.com/creatorkostas/KeyDB/database/database_core"
+	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
+
+	// "github.com/creatorkostas/KeyDB/internal/database/database_test"
+	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
+	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	"github.com/gin-gonic/gin"
 )
 
 // var DB_filename string = "db.gob"
+
 var router = gin.New()
 
 func cleanup() {
-	tools.SaveToFile(internal.DB_filename, &database.DB)
-	tools.SaveToFile(internal.Accounts_filename, &users.Accounts)
-	aof.Operations <- "||exit||"
+	persistance.SaveToFile(internal.DB_filename, &database.DB)
+	persistance.SaveToFile(internal.Accounts_filename, &users.Accounts)
+	persistance.Operations <- "||exit||"
 }
 
 func initialize() {
 	// gin.SetMode(gin.ReleaseMode)
 	gin.SetMode(gin.DebugMode)
 
-	tools.LoadFromFile(internal.DB_filename, &database.DB)
-	tools.LoadFromFile(internal.Accounts_filename, &users.Accounts)
+	persistance.LoadFromFile(internal.DB_filename, &database.DB)
+	persistance.LoadFromFile(internal.Accounts_filename, &users.Accounts)
 
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		cleanup()
-		<-c
-		os.Exit(1)
-	}()
+	// c := make(chan os.Signal, 2)
+	// signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	// go func() {
+	// 	<-c
+	// 	cleanup()
+	// 	os.Exit(1)
+	// }()
 
-	aof.Start_writers(1)
+	persistance.Start_writers(1)
 
-	cmd_api.Setup_router(router)
-	cmd_api.Add_endpointis(router)
+	web_api.Setup_router(router)
+	web_api.Add_endpoints(router)
 
 }
 
 func main() {
 
 	devMode := false
+	conf_path := "config.yaml"
 	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
+	flag.StringVar(&conf_path, "conf", conf_path, "Set the config file")
 	flag.Parse()
 
-	// fmt.Println(database_test.Run_write_test(100))
-	// fmt.Println(database_test.Run_read_test(10000))
-
+	internal.Load_configs(conf_path)
 	initialize()
+	cmd_api.Cmd_start()
 	router.Run(":8080")
-
 }
