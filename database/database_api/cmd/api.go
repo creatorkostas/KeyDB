@@ -99,7 +99,7 @@ func StartKeyDB(dev bool, start_web bool, port int) {
 	persistance.Start_writers(1)
 
 	if start_web {
-		go setAndStartRemote(dev, port)
+		setAndStartRemote(dev, port)
 	}
 
 }
