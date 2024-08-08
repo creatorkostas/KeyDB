@@ -3,7 +3,6 @@ package cmd_api
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -45,13 +44,13 @@ func Cmd_start() {
 			case "stopweb":
 				StopWeb()
 			case "startwebdev":
-				var port int64
-				port, _ = strconv.ParseInt(print_and_get("Port: "), 10, 64)
-				setAndStartRemote(true, int(port))
+				var port string
+				port = print_and_get("Port: ")
+				setAndStartRemote(true, port)
 			case "startweb":
-				var port int64
-				port, _ = strconv.ParseInt(print_and_get("Port: "), 10, 64)
-				setAndStartRemote(false, int(port))
+				var port string
+				port = print_and_get("Port: ")
+				setAndStartRemote(false, port)
 			case "exit":
 				StopWeb()
 				persistance.Operations <- "||exit||"
