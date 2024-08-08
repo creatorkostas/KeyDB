@@ -19,6 +19,8 @@ var Append_file string = "aof.txt"
 
 const Append_size int = 64
 
+var Web_Enable_admin_register = true
+
 type configs struct {
 	DB_filename                 string `yaml:"DB_filename"`
 	Accounts_filename           string `yaml:"Accounts_filename"`

@@ -45,6 +45,8 @@ func Add_endpoints(router *gin.Engine) {
 		{
 			admin.GET("/save", api.Save)
 			admin.GET("/load", api.Load)
+			admin.GET("/disableAdmin", api.DisableAdmin)
+			admin.GET("/enableAdmin", api.EnableAdmin)
 		}
 	}
 }
