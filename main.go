@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"os"
+	"strconv"
 
 	cmd_api "github.com/creatorkostas/KeyDB/database/database_api/cmd"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
@@ -46,7 +48,14 @@ func main() {
 
 	internal.Load_configs(conf_path)
 	// initialize()
-	cmd_api.StartKeyDB(devMode, true, 8080)
+	var port = os.Getenv("PORT")
+
+	if port == "" {
+		cmd_api.StartKeyDB(devMode, true, strconv.Itoa(8080))
+	} else {
+		cmd_api.StartKeyDB(devMode, true, port)
+	}
+
 	if cmd {
 		cmd_api.Cmd_start()
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strconv"
 
 	web_api "github.com/creatorkostas/KeyDB/database/database_api/web"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
@@ -91,7 +90,7 @@ func GetAccount(username string) *users.Account {
 	// return acc.Username
 }
 
-func StartKeyDB(dev bool, start_web bool, port int) {
+func StartKeyDB(dev bool, start_web bool, port string) {
 
 	db_utils.LoadDB(internal.DB_filename)
 	users.LoadAccounts(internal.Accounts_filename)
@@ -104,7 +103,7 @@ func StartKeyDB(dev bool, start_web bool, port int) {
 
 }
 
-func setAndStartRemote(dev bool, port int) {
+func setAndStartRemote(dev bool, port string) {
 
 	if dev {
 		gin.SetMode(gin.DebugMode)
@@ -117,7 +116,7 @@ func setAndStartRemote(dev bool, port int) {
 	web_api.Setup_router(router)
 	web_api.Add_endpoints(router)
 
-	router.Run(":" + strconv.Itoa(port))
+	router.Run(":" + port)
 }
 
 func StopWeb() {
