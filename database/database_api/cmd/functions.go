@@ -7,10 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
-	db_utils "github.com/creatorkostas/KeyDB/database/database_core/utils"
+	stats "github.com/semihalev/gin-stats"
 )
 
 var wg sync.WaitGroup
@@ -29,6 +28,9 @@ func Cmd_start() {
 			case "getacc":
 				var acc_name = print_and_get("Username: ")
 				fmt.Println(GetAccount(acc_name))
+			case "report":
+				fmt.Println(stats.Report().GetAll())
+				fmt.Println(stats.Report())
 			case "makeacc":
 				var username, acc_tier, email, password string = "", "", "", ""
 
@@ -54,8 +56,7 @@ func Cmd_start() {
 				StopWeb()
 				persistance.Operations <- "||exit||"
 
-				db_utils.SaveDB(internal.DB_filename)
-				users.SaveAccounts(internal.Accounts_filename)
+				Save()
 				wg.Done()
 				os.Exit(0)
 			default:

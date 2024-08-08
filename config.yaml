@@ -1,0 +1,6 @@
+DB_filename: db.gob
+Accounts_filename: accounts.gob
+Send_all_errors_in_requests: true
+Append_only_in_file: false
+Append_file: aof.op
+# Append_size: 64

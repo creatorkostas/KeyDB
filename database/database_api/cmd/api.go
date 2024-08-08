@@ -99,19 +99,20 @@ func StartKeyDB(dev bool, start_web bool, port int) {
 	persistance.Start_writers(1)
 
 	if start_web {
-		setAndStartRemote(dev, port)
+		go setAndStartRemote(dev, port)
 	}
 
 }
 
 func setAndStartRemote(dev bool, port int) {
-	router = gin.New()
 
 	if dev {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	router = gin.New()
 
 	web_api.Setup_router(router)
 	web_api.Add_endpoints(router)

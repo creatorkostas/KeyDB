@@ -44,7 +44,7 @@ func main() {
 
 	internal.Load_configs(conf_path)
 	// initialize()
-	cmd_api.StartKeyDB(true, false, 8080)
+	cmd_api.StartKeyDB(devMode, true, 8080)
 	cmd_api.Cmd_start()
 	// router.Run(":8080")
 }
