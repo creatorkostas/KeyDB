@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/creatorkostas/KeyDB/database/database_core/conf"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
@@ -72,7 +73,10 @@ func Register(c *gin.Context) {
 	var acc *users.Account = nil
 	var err error = errors.New("something went wrong")
 
-	if username_found && email_found && password_found && acc_type_found {
+	if !conf.Web_Enable_admin_register && acc_type == "Admin" {
+		error_message = "Admin register is disabled. Please contact the administrator!!"
+		error_code = http.StatusUnauthorized
+	} else if username_found && email_found && password_found && acc_type_found {
 		acc = users.Create_account(username, acc_type, email, password)
 		// log.Println("yesss")
 		if acc != nil {
@@ -89,8 +93,6 @@ func Register(c *gin.Context) {
 	}
 
 	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
-	// log.Println(res)
-	// log.Println(acc)
 	res.sendResponce()
 }
 
@@ -134,4 +136,14 @@ func Load(c *gin.Context) {
 	users.LoadAccounts(internal.Accounts_filename)
 
 	c.JSON(http.StatusOK, JsonResponce{"ok"})
+}
+
+func DisableAdmin(c *gin.Context) {
+	conf.Web_Enable_admin_register = false
+	c.JSON(http.StatusOK, JsonResponce{"Admin register disabled"})
+}
+
+func EnableAdmin(c *gin.Context) {
+	conf.Web_Enable_admin_register = true
+	c.JSON(http.StatusOK, JsonResponce{"Admin register enabled"})
 }
