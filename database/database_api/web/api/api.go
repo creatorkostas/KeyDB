@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	database "github.com/creatorkostas/KeyDB/database/database_core"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
-	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
+	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
+	db_utils "github.com/creatorkostas/KeyDB/database/database_core/utils"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
 )
@@ -123,15 +123,15 @@ func GetStats(c *gin.Context) {
 }
 
 func Save(c *gin.Context) {
-	persistance.SaveToFile(internal.DB_filename, &database.DB)
-	persistance.SaveToFile(internal.Accounts_filename, &users.Accounts)
+	db_utils.SaveDB(internal.DB_filename)
+	users.SaveAccounts(internal.Accounts_filename)
 
 	c.JSON(http.StatusOK, JsonResponce{"ok"})
 }
 
 func Load(c *gin.Context) {
-	persistance.LoadFromFile(internal.DB_filename, &database.DB)
-	persistance.LoadFromFile(internal.Accounts_filename, &users.Accounts)
+	db_utils.LoadDB(internal.DB_filename)
+	users.LoadAccounts(internal.Accounts_filename)
 
 	c.JSON(http.StatusOK, JsonResponce{"ok"})
 }

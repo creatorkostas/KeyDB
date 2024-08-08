@@ -1,12 +1,15 @@
 package users
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 const (
-	ADMIN     = 0
-	USER      = 1
-	FREE_USER = 2
-	DEFAULT   = 3
+	ADMIN      = 0
+	USER       = 1
+	GUEST_USER = 2
+	DEFAULT    = 3
 )
 
 const (
@@ -25,6 +28,18 @@ type Account struct {
 	UserInfo
 	AccountState
 	Tier Tier
+}
+
+func (acc *Account) ToSting() string {
+	var acc_string strings.Builder
+	// acc_string.WriteString(acc.UserInfo.Username)
+	// acc_string.WriteString(acc.UserInfo.Email)
+	// acc_string.WriteString(acc.UserInfo.Password)
+	// acc_string.WriteString(acc.UserInfo.Api_key)
+	// acc_string.WriteString(acc.AccountState.Active)
+	// acc_string.WriteString(acc.AccountState.Active)
+	// acc_string.WriteString(acc.Tier)
+	return acc_string.String()
 }
 
 func (acc *Account) IsAdmin() bool {
@@ -83,10 +98,11 @@ func (acc *Account) MakeUser() {
 	acc.AccountState = User_state
 }
 
-func (acc *Account) MakeFreeUser() {
-	acc.Tier.Type = FREE_USER
-	acc.Tier.Rules = Free_user_rules
+func (acc *Account) MakeGuestUser() {
+	acc.Tier.Type = GUEST_USER
+	acc.Tier.Rules = Guest_user_rules
 	acc.AccountState = Free_user_state
 }
 
-var Accounts = make([]Account, 50)
+// var Accounts = make([]Account, 50)
+var accounts map[string]Account = make(map[string]Account, 100)

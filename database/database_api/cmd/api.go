@@ -1,13 +1,21 @@
 package cmd_api
 
 import (
+	"context"
 	"errors"
+	"net/http"
+	"strconv"
 
-	database "github.com/creatorkostas/KeyDB/database/database_core"
+	web_api "github.com/creatorkostas/KeyDB/database/database_api/web"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
+	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
+	db_utils "github.com/creatorkostas/KeyDB/database/database_core/utils"
+	"github.com/gin-gonic/gin"
 )
+
+var router *gin.Engine
 
 func GetValue(key string, acc *users.Account) (any, error) {
 
@@ -60,15 +68,61 @@ func ChangePassword(acc *users.Account, new_pass string) (bool, error) {
 }
 
 func Save() (bool, error) {
-	persistance.SaveToFile(internal.DB_filename, &database.DB)
-	persistance.SaveToFile(internal.Accounts_filename, &users.Accounts)
+	db_utils.SaveDB(internal.DB_filename)
+	users.SaveAccounts(internal.Accounts_filename)
 
 	return true, nil
 }
 
 func Load() (bool, error) {
-	persistance.LoadFromFile(internal.DB_filename, &database.DB)
-	persistance.LoadFromFile(internal.Accounts_filename, &users.Accounts)
+	db_utils.LoadDB(internal.DB_filename)
+	users.LoadAccounts(internal.Accounts_filename)
 
 	return true, nil
+}
+
+func GetAccount(username string) *users.Account {
+	var acc = users.Get_account(username)
+	return acc
+	// fmt.Println(acc)
+	// if acc == nil {
+	// 	return "The user does not exist"
+	// }
+	// return acc.Username
+}
+
+func StartKeyDB(dev bool, start_web bool, port int) {
+
+	db_utils.LoadDB(internal.DB_filename)
+	users.LoadAccounts(internal.Accounts_filename)
+
+	persistance.Start_writers(1)
+
+	if start_web {
+		setAndStartRemote(dev, port)
+	}
+
+}
+
+func setAndStartRemote(dev bool, port int) {
+	router = gin.New()
+
+	if dev {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	web_api.Setup_router(router)
+	web_api.Add_endpoints(router)
+
+	router.Run(":" + strconv.Itoa(port))
+}
+
+func StopWeb() {
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+	srv.Shutdown(context.Background())
 }

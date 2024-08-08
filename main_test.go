@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	database "github.com/creatorkostas/KeyDB/database/database_core"
+	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 	// "github.com/creatorkostas/KeyDB/internal/database/database_test"
 )
 

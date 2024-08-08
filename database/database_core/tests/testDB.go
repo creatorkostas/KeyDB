@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	database "github.com/creatorkostas/KeyDB/database/database_core"
+	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 )
 
 var wg sync.WaitGroup
