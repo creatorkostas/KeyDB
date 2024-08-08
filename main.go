@@ -36,15 +36,19 @@ import (
 
 func main() {
 
+	cmd := false
 	devMode := false
 	conf_path := "config.yaml"
 	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
+	flag.BoolVar(&cmd, "cmd", cmd, "enable cmd mode")
 	flag.StringVar(&conf_path, "conf", conf_path, "Set the config file")
 	flag.Parse()
 
 	internal.Load_configs(conf_path)
 	// initialize()
 	cmd_api.StartKeyDB(devMode, true, 8080)
-	cmd_api.Cmd_start()
+	if cmd {
+		cmd_api.Cmd_start()
+	}
 	// router.Run(":8080")
 }
