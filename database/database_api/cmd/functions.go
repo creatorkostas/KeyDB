@@ -38,9 +38,15 @@ func Cmd_start() {
 				email = print_and_get("email: ")
 				password = print_and_get("password: ")
 
-				var acc = users.Create_account(username, acc_tier, email, password)
-				fmt.Print("Account : ")
-				fmt.Println(acc)
+				var acc, private_key, err = users.Create_account(username, acc_tier, email, password)
+				if err != nil {
+					fmt.Print("Account : ")
+					fmt.Println(acc)
+					fmt.Print("Private RSA key : ")
+					fmt.Println(private_key)
+				} else {
+					fmt.Println(err.Error())
+				}
 			case "stopweb":
 				StopWeb()
 			case "startwebdev":

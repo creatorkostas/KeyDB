@@ -1,0 +1,5 @@
+TODO: Add RSA encryption
+TODO: Add sove to firestore function
+TODO: Add 32 bit float
+TODO: Make landing page
+TODO: Make account panel (Dashboard)

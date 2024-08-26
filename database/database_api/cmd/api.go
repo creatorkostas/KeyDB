@@ -41,17 +41,9 @@ func SetValues(key string, acc *users.Account, value_type string, data string) (
 	return ok, err
 }
 
-func Register(username string, email string, password string, acc_type string) (*users.Account, error) {
-	var acc *users.Account = nil
-
-	var err error = nil
-
-	acc = users.Create_account(username, acc_type, email, password)
-	if acc == nil {
-		err = errors.New("something went wrong")
-	}
-
-	return acc, err
+func Register(username string, email string, password string, acc_type string) (*users.Account, string, error) {
+	var acc, private_key, err = users.Create_account(username, acc_type, email, password)
+	return acc, private_key, err
 }
 
 func ChangeApiKey(acc *users.Account) (string, error) {

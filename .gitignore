@@ -30,3 +30,4 @@ aof.txt
 count_lines_of_code.py
 db.gob
 .vscode/settings.json
+.env

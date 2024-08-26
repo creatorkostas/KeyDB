@@ -71,17 +71,16 @@ func Register(c *gin.Context) {
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
 	var acc *users.Account = nil
+	var private_key string = ""
 	var err error = errors.New("something went wrong")
 
 	if !conf.Web_Enable_admin_register && acc_type == "Admin" {
 		error_message = "Admin register is disabled. Please contact the administrator!!"
 		error_code = http.StatusUnauthorized
 	} else if username_found && email_found && password_found && acc_type_found {
-		acc = users.Create_account(username, acc_type, email, password)
+		acc, private_key, err = users.Create_account(username, acc_type, email, password)
 		// log.Println("yesss")
-		if acc != nil {
-			err = nil
-		}
+
 	} else {
 		error_message = fmt.Sprintf(
 			"Missings parameters!! username found: %s , email found: %s , password found: %s , acc_type found: %s",
@@ -92,7 +91,16 @@ func Register(c *gin.Context) {
 		error_code = http.StatusBadRequest
 	}
 
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	var ret map[string]any = make(map[string]any)
+	if err == nil {
+		ret["Account"] = acc
+		ret["Private_RSA_key"] = private_key
+		ret["Message"] = "Please save this key as it can't be retrived again!"
+	} else {
+		error_message = err.Error()
+	}
+
+	var res = &Responce{C: c, ErrorMessage: error_message, Result: ret, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
 	res.sendResponce()
 }
 

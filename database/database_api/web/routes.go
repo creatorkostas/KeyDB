@@ -1,6 +1,8 @@
 package web_api
 
 import (
+	"net/http"
+
 	"github.com/creatorkostas/KeyDB/database/database_api/web/api"
 	middleware "github.com/creatorkostas/KeyDB/database/database_api/web/middleware"
 	helmet "github.com/danielkov/gin-helmet"
@@ -26,7 +28,14 @@ func Setup_router(router *gin.Engine) {
 }
 
 func Add_endpoints(router *gin.Engine) {
+	// http.Handle("/", http.FileServer(http.Dir("./frontend/build")))
+	// http.Handle("/", http.FileServer(http.Dir("public/")))
+	// router.LoadHTMLGlob("frontend/build/*.html")
+	// router.LoadHTMLFiles("frontend/build/index.html")
 
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
 	router.GET("/api/v1/register", api.Register)
 
 	authorized := router.Group("/api/v1/:user")

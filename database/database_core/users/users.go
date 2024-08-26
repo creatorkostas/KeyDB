@@ -1,6 +1,10 @@
 package users
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"strings"
 	"time"
 )
@@ -27,7 +31,37 @@ type UserInfo struct {
 type Account struct {
 	UserInfo
 	AccountState
-	Tier Tier
+	Tier       Tier
+	Public_key string
+}
+
+func (acc *Account) create_RSA_keys() string {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		panic(err)
+	}
+
+	publicKey := &privateKey.PublicKey
+
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	})
+
+	// privateKey
+
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		panic(err)
+	}
+	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	})
+	acc.Public_key = string(publicKeyPEM)
+
+	return string(privateKeyPEM)
 }
 
 func (acc *Account) ToSting() string {
