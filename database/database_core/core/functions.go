@@ -96,13 +96,18 @@ func Add_value(table string, key string, value_type string, data string) error {
 	return set_err
 }
 
-func Get_value(table string, key string) any {
+func Get_value(table string, key string, get_raw bool) any {
 
 	if key == "table.get.all.data" {
 		m.RLock()
 		var stored_data = DB[table]
 		m.RUnlock()
 		return stored_data
+	} else if get_raw {
+		m.RLock()
+		var stored_data = DB[table][key]
+		m.RUnlock()
+		return stored_data.Data
 	} else {
 
 		m.RLock()

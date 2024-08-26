@@ -9,6 +9,7 @@ import (
 	"github.com/creatorkostas/KeyDB/database/database_core/conf"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	database "github.com/creatorkostas/KeyDB/database/database_core/core"
+	"github.com/creatorkostas/KeyDB/database/database_core/security"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	db_utils "github.com/creatorkostas/KeyDB/database/database_core/utils"
 	"github.com/gin-gonic/gin"
@@ -18,16 +19,26 @@ import (
 func GetValue(c *gin.Context) {
 
 	var key, key_found = c.GetQuery("key")
-
+	var encrypt, encrypt_found = c.GetQuery("encrypt")
+	var encrypt_bool bool
 	var acc = c.MustGet("Account").(*users.Account)
+
+	if encrypt == "0" || encrypt == "false" {
+		encrypt_bool = false
+	} else if encrypt == "1" || encrypt == "true" {
+		encrypt_bool = true
+	}
 
 	var result any
 	if key_found {
-		result = database.Get_value(acc.Username, key)
+		result = database.Get_value(acc.Username, key, encrypt_bool)
 	} else {
-		result = database.Get_value(acc.Username, "table.get.all.data")
+		result = database.Get_value(acc.Username, "table.get.all.data", encrypt_bool)
 	}
 
+	if encrypt_found && encrypt_bool {
+		result = security.Encrypt_data(acc.Public_key, result.([]byte))
+	}
 	var res = &Responce{C: c, ErrorMessage: "Key does not exist", Result: result, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
 	res.sendResponce()
 

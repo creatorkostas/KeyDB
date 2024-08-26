@@ -138,5 +138,9 @@ func (acc *Account) MakeGuestUser() {
 	acc.AccountState = Free_user_state
 }
 
+func GetAllAccounts() map[string]Account {
+	return accounts
+}
+
 // var Accounts = make([]Account, 50)
 var accounts map[string]Account = make(map[string]Account, 100)

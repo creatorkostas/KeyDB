@@ -45,7 +45,7 @@ func Add_endpoints(router *gin.Engine) {
 	{
 		authorized.GET("/get", middleware.CanGet(), api.GetValue)
 		authorized.GET("/get_all", middleware.CanGet(), api.GetValue)
-		authorized.POST("/set", middleware.CanGetAdd(), api.SetValues)
+		authorized.GET("/set", middleware.CanGetAdd(), api.SetValues)
 		authorized.GET("/stats", middleware.CanGetAnalytics(), api.GetStats)
 
 		// // nested group

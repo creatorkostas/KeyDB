@@ -69,7 +69,7 @@ func Run_read_test(concurent_writes int) string {
 		wg.Add(1)
 		go func() {
 			// fmt.Println(
-			database.Get_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)])
+			database.Get_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)], false)
 			// )
 			wg.Done()
 		}()

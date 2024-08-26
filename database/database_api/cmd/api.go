@@ -19,7 +19,7 @@ var router *gin.Engine
 func GetValue(key string, acc *users.Account) (any, error) {
 
 	var err error = nil
-	var result any = database.Get_value(acc.Username, "table.get.all.data")
+	var result any = database.Get_value(acc.Username, "table.get.all.data", false)
 	if result == nil {
 		err = errors.New("key does not exist")
 	}

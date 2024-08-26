@@ -27,6 +27,8 @@ func Cmd_start() {
 			case "getacc":
 				var acc_name = print_and_get("Username: ")
 				fmt.Println(GetAccount(acc_name))
+			case "getallacc":
+				fmt.Println(users.GetAllAccounts())
 			case "report":
 				fmt.Println(stats.Report().GetAll())
 				fmt.Println(stats.Report())
