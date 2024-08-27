@@ -50,7 +50,23 @@ func SetValues(c *gin.Context) {
 	var acc = c.MustGet("Account").(*users.Account)
 	var key, key_found = c.GetQuery("key")
 	var value_type, value_type_found = c.GetQuery("type")
-	var data, data_found = c.GetQuery("value")
+	var data string
+	var data_found bool
+
+	var encrypt, encrypt_found = c.GetQuery("encrypt")
+	var encrypt_bool bool
+	if encrypt == "0" || encrypt == "false" {
+		encrypt_bool = false
+	} else if encrypt == "1" || encrypt == "true" {
+		encrypt_bool = true
+	}
+
+	if encrypt_found && encrypt_bool {
+		data, data_found = c.GetQuery("value")
+		data = security.Decrypt_data(acc.Public_key, []byte(data))
+	} else {
+		data, data_found = c.GetQuery("value")
+	}
 
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
