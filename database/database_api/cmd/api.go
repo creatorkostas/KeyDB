@@ -3,6 +3,7 @@ package cmd_api
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 
 	web_api "github.com/creatorkostas/KeyDB/database/database_api/web"
@@ -15,6 +16,7 @@ import (
 )
 
 var router *gin.Engine
+var router_set bool = false
 
 func GetValue(key string, acc *users.Account) (any, error) {
 
@@ -82,7 +84,7 @@ func GetAccount(username string) *users.Account {
 	// return acc.Username
 }
 
-func StartKeyDB(dev bool, start_web bool, port string) {
+func StartKeyDB(dev bool, start_web bool, port string, start_unix bool) {
 
 	db_utils.LoadDB(internal.DB_filename)
 	users.LoadAccounts(internal.Accounts_filename)
@@ -90,12 +92,27 @@ func StartKeyDB(dev bool, start_web bool, port string) {
 	persistance.Start_writers(1)
 
 	if start_web {
-		setAndStartRemote(dev, port)
+		startRemote(dev, port)
+	}
+
+	if start_unix {
+		startUnix()
 	}
 
 }
 
-func setAndStartRemote(dev bool, port string) {
+func setRouter() {
+	router = gin.New()
+
+	web_api.Setup_router(router)
+	web_api.Add_endpoints(router)
+	router_set = true
+}
+
+func startRemote(dev bool, port string) {
+	if !router_set {
+		setRouter()
+	}
 
 	if dev {
 		gin.SetMode(gin.DebugMode)
@@ -103,12 +120,21 @@ func setAndStartRemote(dev bool, port string) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router = gin.New()
+	go router.Run(":" + port)
+}
 
-	web_api.Setup_router(router)
-	web_api.Add_endpoints(router)
+func startUnix() {
+	if !router_set {
+		setRouter()
+	}
 
-	router.Run(":" + port)
+	listener, err := net.Listen("unix", "/tmp/keydb_sock.sock")
+	if err != nil {
+		panic(err)
+	}
+
+	go http.Serve(listener, router)
+
 }
 
 func StopWeb() {
@@ -117,4 +143,12 @@ func StopWeb() {
 		Handler: router,
 	}
 	srv.Shutdown(context.Background())
+}
+
+func StopUnix() {
+	// srv := &http.Server{
+	// 	Addr:    ":8080",
+	// 	Handler: router,
+	// }
+	// srv.Shutdown(context.Background())
 }

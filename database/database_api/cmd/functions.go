@@ -54,11 +54,13 @@ func Cmd_start() {
 			case "startwebdev":
 				var port string
 				port = print_and_get("Port: ")
-				setAndStartRemote(true, port)
+				startRemote(true, port)
 			case "startweb":
 				var port string
 				port = print_and_get("Port: ")
-				setAndStartRemote(false, port)
+				startRemote(false, port)
+			case "startunix":
+				startUnix()
 			case "exit":
 				StopWeb()
 				persistance.Operations <- "||exit||"
@@ -66,6 +68,8 @@ func Cmd_start() {
 				Save()
 				wg.Done()
 				os.Exit(0)
+			case "":
+				continue
 			default:
 				fmt.Println("Invalid command!")
 			}
