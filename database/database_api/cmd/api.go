@@ -10,6 +10,7 @@ import (
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	database "github.com/creatorkostas/KeyDB/database/database_core/core"
 	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
+	"github.com/creatorkostas/KeyDB/database/database_core/security"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	db_utils "github.com/creatorkostas/KeyDB/database/database_core/utils"
 	"github.com/gin-gonic/gin"
@@ -30,11 +31,17 @@ func GetValue(key string, acc *users.Account) (any, error) {
 
 }
 
-func SetValues(key string, acc *users.Account, value_type string, data string) (bool, error) {
+func SetValues(key string, acc *users.Account, value_type string, data string, encrypt bool) (bool, error) {
 
 	var err error = nil
+
+	if encrypt {
+		err = database.Add_value(acc.Username, key, value_type, security.Decrypt_data(acc.Public_key, []byte(data)), false, false, "")
+	} else {
+		err = database.Add_value(acc.Username, key, value_type, data, false, false, "")
+	}
+
 	var ok bool = false
-	err = database.Add_value(acc.Username, key, value_type, data)
 
 	if err == nil {
 		ok = true

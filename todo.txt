@@ -1,10 +1,11 @@
-TODO: Add 32 bit float
 TODO: Make landing page
 TODO: Make account panel (Dashboard)
 TODO: Add recreate data from aof
 TODO: Add save to firestore
 TODO: Test RSA encryption decryption\
+TODO: Check how I want to handle the encryption & decryption
 DONE: Add encrypt responce
 DONE: Add RSA keys creation
 DONE: Add support for encrypted request
 DONE: Add RSA encryption
+DONE: Add 32 bit float

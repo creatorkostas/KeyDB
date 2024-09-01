@@ -18,6 +18,7 @@ var valus_num int = 5
 
 var values [5]map[string]string
 
+// TODO make it into a test
 func Run_write_test(concurent_writes int) string {
 
 	for _, v := range tables {
@@ -49,8 +50,8 @@ func Run_write_test(concurent_writes int) string {
 	for i := 0; i < concurent_writes; i++ {
 		wg.Add(1)
 		go func() {
-			var val_int = rand.IntN(valus_num)
-			database.Add_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)], values[val_int]["type"], values[val_int]["value"])
+			// var val_int = rand.IntN(valus_num)
+			// database.Add_value(tables[rand.IntN(tables_num)], keys[rand.IntN(keys_num)], values[val_int]["type"], values[val_int]["value"], false, false)
 			wg.Done()
 		}()
 	}

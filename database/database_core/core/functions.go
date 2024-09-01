@@ -9,77 +9,87 @@ import (
 	"unsafe"
 
 	"github.com/creatorkostas/KeyDB/database/database_core/persistance"
+	"github.com/creatorkostas/KeyDB/database/database_core/security"
 	// "github.com/creatorkostas/KeyDB/database/database_core/persistance"
 )
 
-func Add_value(table string, key string, value_type string, data string) error {
+func Add_value(table string, key string, value_type string, data string, encrypted_data bool, encrypt_on_save bool, public_key string) error {
 	// var ret bool = false
+	// var temp_data = data
+	//TODO  see encryption keys
+	if encrypted_data && public_key != "" {
+		data = security.Decrypt_data(public_key, []byte(data))
+	}
+
 	var set_err error
 	// if !internal.Append_only_in_file {
 	DB_val := makeDefault_DB_value()
 
-	switch value_type {
-	case INT:
-		DB_val.Value_type = 0
-		var d, err = strconv.Atoi(data)
-		set_err = err
+	if encrypt_on_save && public_key != "" {
+		DB_val.Value_type = INT_ENCRYPTED_DATA
+		DB_val.Data = security.Encrypt_data(public_key, []byte(data))
+	} else {
 
-		if err == nil {
+		switch value_type {
+		case INT:
+			DB_val.Value_type = INT_INT
+			var d, err = strconv.Atoi(data)
+			set_err = err
+
+			if err == nil {
+				DB_val.Data = make([]byte, 8)
+				for i := 0; i < 8; i++ {
+					DB_val.Data[i] = byte(int64(d) >> (i * 8) & 0xFF)
+				}
+			}
+
+		case STRING:
+			DB_val.Value_type = INT_STRING
+			DB_val.Data = []byte(data)
+		case FLOAT32:
+			DB_val.Value_type = INT_FLOAT32
 			DB_val.Data = make([]byte, 8)
-			for i := 0; i < 8; i++ {
-				DB_val.Data[i] = byte(int64(d) >> (i * 8) & 0xFF)
+			float, err := strconv.ParseFloat(data, 32)
+			set_err = err
+
+			float32bit := float32(float)
+			if err == nil {
+				n := *(*uint32)(unsafe.Pointer(&float32bit))
+
+				for i := 0; i < 8; i++ {
+					DB_val.Data[i] = byte(n >> (i * 8))
+				}
 			}
-		}
-		// fmt.Println("aaaaa")
-		// fmt.Println(DB_val.Data)
-		// fmt.Println(err)
 
-	case STRING:
-		DB_val.Value_type = 1
-		DB_val.Data = []byte(data)
-	case FLOAT32:
-		// TODO make 32 bit
-		DB_val.Value_type = 3
-		DB_val.Data = make([]byte, 8)
-		float, err := strconv.ParseFloat(data, 64)
-		set_err = err
+		case FLOAT64:
+			DB_val.Value_type = INT_FLOAT64
+			DB_val.Data = make([]byte, 8)
 
-		if err == nil {
-			n := *(*uint64)(unsafe.Pointer(&float))
+			float, err := strconv.ParseFloat(data, 64)
+			set_err = err
 
-			for i := 0; i < 8; i++ {
-				DB_val.Data[i] = byte(n >> (i * 8))
+			if err == nil {
+				n := *(*uint64)(unsafe.Pointer(&float))
+
+				for i := 0; i < 8; i++ {
+					DB_val.Data[i] = byte(n >> (i * 8))
+				}
 			}
-		}
 
-	case FLOAT64:
-		DB_val.Value_type = 3
-		DB_val.Data = make([]byte, 8)
+		case BOOL:
+			DB_val.Value_type = INT_BOOL
+			DB_val.Data = make([]byte, 1)
 
-		float, err := strconv.ParseFloat(data, 64)
-		set_err = err
-
-		if err == nil {
-			n := *(*uint64)(unsafe.Pointer(&float))
-
-			for i := 0; i < 8; i++ {
-				DB_val.Data[i] = byte(n >> (i * 8))
+			if data == "0" || data == "false" {
+				DB_val.Data[0] = 0x00
+			} else if data == "1" || data == "true" {
+				DB_val.Data[0] = 0x01
 			}
+
+		default:
+			// ret = false
+			set_err = errors.New("something went wrong")
 		}
-
-	case BOOL:
-		DB_val.Value_type = 4
-		DB_val.Data = make([]byte, 1)
-
-		if data == "0" || data == "false" {
-			DB_val.Data[0] = 0x00
-		} else if data == "1" || data == "true" {
-			DB_val.Data[0] = 0x01
-		}
-
-	default:
-		// ret = false
-		set_err = errors.New("something went wrong")
 	}
 
 	if set_err == nil {
@@ -121,41 +131,21 @@ func Get_value(table string, key string, get_raw bool) any {
 		switch value_type {
 		case INT_INT:
 			var data, _ = dataConvert[int64](stored_data.Data)
-			// fmt.Println(*(*int64)(unsafe.Pointer(&stored_data.Data)))
-			// if err != nil {
-			// 	log.Println(err)
-			// 	return nil
-			// }
 			return data
-			// return *(*int64)(unsafe.Pointer(&stored_data.Data))
 		case INT_STRING:
 			var data = string(stored_data.Data)
 			return data
 		case INT_FLOAT32:
+			// Is still saved as float64. It needs to be changes in the AddValue function
 			var data, _ = dataConvert[float32](stored_data.Data)
-			// if err != nil {
-			// 	log.Println(err)
-			// 	return nil
-			// }
 			return data
-			// return *(*float32)(unsafe.Pointer(&stored_data.Data))
 		case INT_FLOAT64:
 			var data, _ = dataConvert[float64](stored_data.Data)
-			// if err != nil {
-			// 	log.Println(err)
-			// 	return nil
-			// }
 			return data
-			// return *(*float64)(unsafe.Pointer(&stored_data.Data))
 		case INT_BOOL:
-			// var data, err = dataConvert[bool](stored_data.Data)
-			// if err != nil {
-			// 	log.Println(err)
-			// 	return nil
-			// }
-			// return data
-
 			return *(*bool)(unsafe.Pointer(&stored_data.Data))
+		case INT_ENCRYPTED_DATA:
+			return stored_data.Data
 		default:
 			return nil
 		}
