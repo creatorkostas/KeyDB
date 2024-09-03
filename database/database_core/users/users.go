@@ -114,28 +114,24 @@ func (acc *Account) CanGetAnalytics() bool {
 
 func MakeDefaultUser() Account {
 	var acc Account
-	acc.Tier.Type = DEFAULT
-	acc.Tier.Rules = Default_rules
+	acc.Tier = Default_tier
 	acc.AccountState = Default_state
 	return acc
 }
 
 func (acc *Account) MakeAdmin() {
-	acc.Tier.Type = ADMIN
-	acc.Tier.Rules = Admin_rules
 	acc.AccountState = Admin_state
+	acc.Tier = Admin_tier
 }
 
 func (acc *Account) MakeUser() {
-	acc.Tier.Type = USER
-	acc.Tier.Rules = User_rules
 	acc.AccountState = User_state
+	acc.Tier = User_tier
 }
 
 func (acc *Account) MakeGuestUser() {
-	acc.Tier.Type = GUEST_USER
-	acc.Tier.Rules = Guest_user_rules
-	acc.AccountState = Free_user_state
+	acc.AccountState = Guest_user_state
+	acc.Tier = Guest_user_tier
 }
 
 func GetAllAccounts() map[string]Account {

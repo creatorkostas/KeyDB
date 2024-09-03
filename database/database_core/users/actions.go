@@ -65,3 +65,9 @@ func LoadAccounts(filename string) error {
 
 	return err
 }
+
+// TODO add and handle errors
+func DeleteAccount(username string) {
+	delete(accounts, username)
+	database.DeleteTable(username)
+}

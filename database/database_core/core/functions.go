@@ -164,3 +164,7 @@ func MakeTable(table string) {
 		DB[table] = make(map[string]DB_value, 100)
 	}
 }
+
+func DeleteTable(table string) {
+	delete(DB, table)
+}

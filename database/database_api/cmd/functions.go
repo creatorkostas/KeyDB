@@ -49,6 +49,15 @@ func Cmd_start() {
 				} else {
 					fmt.Println(err.Error())
 				}
+			case "deleteacc":
+				var acc_name = print_and_get("Username: ")
+				var sure = print_and_get("Are you sure? [y/n]: ")
+				if sure == "y" {
+					users.DeleteAccount(acc_name)
+					fmt.Println("Account deleted!")
+				} else {
+					fmt.Println("Aborted!")
+				}
 			case "makeaccadmin":
 				var acc_name = print_and_get("Username: ")
 				var acc = GetAccount(acc_name)
@@ -87,5 +96,5 @@ func print_and_get(print string) string {
 	var str string = ""
 	fmt.Print(print)
 	fmt.Scanln(&str)
-	return strings.ToLower(strings.Replace(str, print, "", 1))
+	return strings.Replace(str, print, "", 1)
 }
