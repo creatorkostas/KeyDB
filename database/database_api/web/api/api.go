@@ -99,7 +99,14 @@ func SetValues(c *gin.Context) {
 		error_code = http.StatusBadRequest
 	}
 
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: true, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	var res *Responce
+
+	if err == nil {
+		res = &Responce{C: c, ErrorMessage: error_message, Result: true, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	} else {
+		res = &Responce{C: c, ErrorMessage: error_message, Result: nil, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	}
+
 	res.sendResponce()
 
 }

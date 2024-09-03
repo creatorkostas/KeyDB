@@ -41,7 +41,7 @@ func Cmd_start() {
 				password = print_and_get("password: ")
 
 				var acc, private_key, err = users.Create_account(username, acc_tier, email, password)
-				if err != nil {
+				if err == nil {
 					fmt.Print("Account : ")
 					fmt.Println(acc)
 					fmt.Print("Private RSA key : ")
