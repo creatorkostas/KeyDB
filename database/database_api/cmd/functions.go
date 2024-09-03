@@ -49,6 +49,11 @@ func Cmd_start() {
 				} else {
 					fmt.Println(err.Error())
 				}
+			case "makeaccadmin":
+				var acc_name = print_and_get("Username: ")
+				var acc = GetAccount(acc_name)
+				acc.MakeAdmin()
+				fmt.Println(acc)
 			case "stopweb":
 				StopWeb()
 			case "startwebdev":
