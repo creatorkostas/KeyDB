@@ -1,15 +1,37 @@
 package api
 
 import (
+	"strings"
+
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	"github.com/gin-gonic/gin"
 )
+
+type ActionResponce struct {
+	Error       error
+	Code        int
+	From        string
+	Description any
+}
+
+func (err *ActionResponce) ToString() string {
+	var err_string strings.Builder
+	err_string.WriteString(string(err.Code))
+	err_string.WriteString(" | ")
+	err_string.WriteString(err.Error.Error())
+	err_string.WriteString(" | ")
+	err_string.WriteString(err.From)
+	err_string.WriteString(" | ")
+	err_string.WriteString(err.Description.(string))
+	err_string.WriteString("\n")
+	return err_string.String()
+}
 
 type JsonResponce struct {
 	Message any `json:"response"`
 }
 
-type Responce struct {
+type HttpResponce struct {
 	ErrorMessage string
 	Result       any
 	C            *gin.Context
@@ -27,7 +49,7 @@ type Responce struct {
 // 	c.Request.Context().Done()
 // }
 
-func (res *Responce) sendResponce() {
+func (res HttpResponce) SendResponce() {
 	if internal.Send_all_errors_in_requests && res.Result_error != nil {
 		res.C.JSON(res.ErrorCode, JsonResponce{Message: res.Result_error.Error()})
 	} else {

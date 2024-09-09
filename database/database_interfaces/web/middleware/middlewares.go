@@ -1,10 +1,10 @@
-package web_api_middleware
+package web_interface_middleware
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/creatorkostas/KeyDB/database/database_api/web/api"
+	api "github.com/creatorkostas/KeyDB/database/database_api"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
 	"github.com/gin-gonic/gin"
 	limit "github.com/yangxikun/gin-limit-by-key"

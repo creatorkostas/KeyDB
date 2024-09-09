@@ -1,14 +1,20 @@
-package web_api
+package web_interface
 
 import (
 	"net/http"
 
-	"github.com/creatorkostas/KeyDB/database/database_api/web/api"
-	middleware "github.com/creatorkostas/KeyDB/database/database_api/web/middleware"
+	api "github.com/creatorkostas/KeyDB/database/database_api"
+	web_api "github.com/creatorkostas/KeyDB/database/database_interfaces/web/api"
+	middleware "github.com/creatorkostas/KeyDB/database/database_interfaces/web/middleware"
 	helmet "github.com/danielkov/gin-helmet"
 	"github.com/gin-gonic/gin"
 	stats "github.com/semihalev/gin-stats"
 )
+
+func SetVariables() {
+	api.RouterSetupFunc = Setup_router
+	api.RouterAddEndpointsFunc = Add_endpoints
+}
 
 func Setup_router(router *gin.Engine) {
 
@@ -36,26 +42,26 @@ func Add_endpoints(router *gin.Engine) {
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
-	router.GET("/api/v1/register", api.Register)
+	router.GET("/api/v1/register", web_api.Register)
 
 	authorized := router.Group("/api/v1/:user")
 	// per group middleware! in this case we use the custom created
 	// AuthRequired() middleware just in the "authorized" group.
 	authorized.Use(middleware.AuthRequired())
 	{
-		authorized.GET("/get", middleware.CanGet(), api.GetValue)
-		authorized.GET("/get_all", middleware.CanGet(), api.GetValue)
-		authorized.GET("/set", middleware.CanGetAdd(), api.SetValues)
-		authorized.GET("/stats", middleware.CanGetAnalytics(), api.GetStats)
+		authorized.GET("/get", middleware.CanGet(), web_api.GetValue)
+		authorized.GET("/get_all", middleware.CanGet(), web_api.GetValue)
+		authorized.GET("/set", middleware.CanGetAdd(), web_api.SetValues)
+		authorized.GET("/stats", middleware.CanGetAnalytics(), web_api.GetStats)
 
 		// // nested group
 		admin := authorized.Group("/admin")
 		admin.Use(middleware.IsAdmin())
 		{
-			admin.GET("/save", api.Save)
-			admin.GET("/load", api.Load)
-			admin.GET("/disableAdmin", api.DisableAdmin)
-			admin.GET("/enableAdmin", api.EnableAdmin)
+			admin.GET("/save", web_api.Save)
+			admin.GET("/load", web_api.Load)
+			admin.GET("/disableAdmin", web_api.DisableAdmin)
+			admin.GET("/enableAdmin", web_api.EnableAdmin)
 		}
 	}
 }

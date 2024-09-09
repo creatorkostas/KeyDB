@@ -1,4 +1,4 @@
-package api
+package web_interface_api
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	api "github.com/creatorkostas/KeyDB/database/database_api"
 	"github.com/creatorkostas/KeyDB/database/database_core/conf"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
 	database "github.com/creatorkostas/KeyDB/database/database_core/core"
@@ -39,8 +40,8 @@ func GetValue(c *gin.Context) {
 	if encrypt_found && encrypt_bool {
 		result = security.Encrypt_data(acc.Public_key, result.([]byte))
 	}
-	var res = &Responce{C: c, ErrorMessage: "Key does not exist", Result: result, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
-	res.sendResponce()
+	var res = &api.HttpResponce{C: c, ErrorMessage: "Key does not exist", Result: result, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
+	res.SendResponce()
 
 }
 
@@ -77,12 +78,12 @@ func SetValues(c *gin.Context) {
 		encrypt_bool = false
 	}
 
-	// if encrypt_found && encrypt_bool {
-	// 	data, data_found = c.GetQuery("value")
-	// 	data = security.Decrypt_data(acc.Public_key, []byte(data))
-	// } else {
-	// 	data, data_found = c.GetQuery("value")
-	// }
+	if encrypt_found && encrypt_bool {
+		data, data_found = c.GetQuery("value")
+		data = security.Decrypt_data(acc.Public_key, []byte(data))
+	} else {
+		data, data_found = c.GetQuery("value")
+	}
 
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
@@ -99,15 +100,15 @@ func SetValues(c *gin.Context) {
 		error_code = http.StatusBadRequest
 	}
 
-	var res *Responce
+	var res *api.HttpResponce
 
 	if err == nil {
-		res = &Responce{C: c, ErrorMessage: error_message, Result: true, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+		res = &api.HttpResponce{C: c, ErrorMessage: error_message, Result: true, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
 	} else {
-		res = &Responce{C: c, ErrorMessage: error_message, Result: nil, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+		res = &api.HttpResponce{C: c, ErrorMessage: error_message, Result: nil, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
 	}
 
-	res.sendResponce()
+	res.SendResponce()
 
 }
 
@@ -150,15 +151,15 @@ func Register(c *gin.Context) {
 		error_message = err.Error()
 	}
 
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: ret, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
-	res.sendResponce()
+	var res = &api.HttpResponce{C: c, ErrorMessage: error_message, Result: ret, OkCode: http.StatusOK, ErrorCode: error_code, Result_error: err}
+	res.SendResponce()
 }
 
 func ChangeApiKey(c *gin.Context) {
 	var acc = c.MustGet("Account").(*users.Account)
 	acc.ChangeApiKey()
-	var res = &Responce{C: c, ErrorMessage: "Something went wrong!", Result: acc, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
-	res.sendResponce()
+	var res = &api.HttpResponce{C: c, ErrorMessage: "Something went wrong!", Result: acc, OkCode: http.StatusOK, ErrorCode: http.StatusBadRequest}
+	res.SendResponce()
 }
 
 func ChangePassword(c *gin.Context) {
@@ -173,8 +174,8 @@ func ChangePassword(c *gin.Context) {
 		error_code = http.StatusBadRequest
 		acc = nil
 	}
-	var res = &Responce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code}
-	res.sendResponce()
+	var res = &api.HttpResponce{C: c, ErrorMessage: error_message, Result: acc, OkCode: http.StatusOK, ErrorCode: error_code}
+	res.SendResponce()
 }
 
 func GetStats(c *gin.Context) {
@@ -186,22 +187,22 @@ func Save(c *gin.Context) {
 	db_utils.SaveDB(internal.DB_filename)
 	users.SaveAccounts(internal.Accounts_filename)
 
-	c.JSON(http.StatusOK, JsonResponce{"ok"})
+	c.JSON(http.StatusOK, api.JsonResponce{"ok"})
 }
 
 func Load(c *gin.Context) {
 	db_utils.LoadDB(internal.DB_filename)
 	users.LoadAccounts(internal.Accounts_filename)
 
-	c.JSON(http.StatusOK, JsonResponce{"ok"})
+	c.JSON(http.StatusOK, api.JsonResponce{"ok"})
 }
 
 func DisableAdmin(c *gin.Context) {
 	conf.Web_Enable_admin_register = false
-	c.JSON(http.StatusOK, JsonResponce{"Admin register disabled"})
+	c.JSON(http.StatusOK, api.JsonResponce{"Admin register disabled"})
 }
 
 func EnableAdmin(c *gin.Context) {
 	conf.Web_Enable_admin_register = true
-	c.JSON(http.StatusOK, JsonResponce{"Admin register enabled"})
+	c.JSON(http.StatusOK, api.JsonResponce{"Admin register enabled"})
 }

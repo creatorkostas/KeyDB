@@ -25,6 +25,8 @@ var WebPort = "8080"
 var StartWeb = true
 var StartUnix = false
 
+var Number_of_writers = 1
+
 type configs struct {
 	DB_filename                 string `yaml:"DB_filename"`
 	Accounts_filename           string `yaml:"Accounts_filename"`
@@ -34,6 +36,7 @@ type configs struct {
 	StartWeb                    bool   `yaml:"StartWeb"`
 	StartUnix                   bool   `yaml:"StartUnix"`
 	WebPort                     string `yaml:"WebPort"`
+	Number_of_writers           int    `yaml:"Number_of_writers"`
 	// Append_size string  `yaml:"MakefileName"`
 }
 
@@ -63,5 +66,6 @@ func Load_configs(path string) {
 	StartWeb = conf.StartWeb
 	StartUnix = conf.StartUnix
 	WebPort = conf.WebPort
+	Number_of_writers = conf.Number_of_writers
 	// Append_size = conf.Append_size
 }

@@ -6,4 +6,5 @@ Append_file: aof.op
 StartWeb: false
 StartUnix: false
 WebPort: "8080"
+Number_of_writers: 1
 # Append_size: 64
