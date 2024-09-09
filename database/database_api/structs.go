@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strconv"
 	"strings"
 
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
@@ -16,7 +17,7 @@ type ActionResponce struct {
 
 func (err *ActionResponce) ToString() string {
 	var err_string strings.Builder
-	err_string.WriteString(string(err.Code))
+	err_string.WriteString(strconv.Itoa(err.Code))
 	err_string.WriteString(" | ")
 	err_string.WriteString(err.Error.Error())
 	err_string.WriteString(" | ")

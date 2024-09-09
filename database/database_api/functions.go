@@ -23,11 +23,16 @@ var router_set bool = false
 var RouterSetupFunc func(router *gin.Engine) = nil
 var RouterAddEndpointsFunc func(router *gin.Engine) = nil
 
-func GetValue(key string, acc *users.Account) ActionResponce {
+func GetValue(acc *users.Account, key string) ActionResponce {
 
 	if acc.CanGet() {
 		var err error = nil
-		var result any = database.Get_value(acc.Username, "table.get.all.data", false)
+		var result any
+		if key == "" {
+			result = database.Get_value(acc.Username, "table.get.all.data", false)
+		} else {
+			result = database.Get_value(acc.Username, key, false)
+		}
 		if result == nil {
 			err = errors.New("key does not exist")
 		}
@@ -39,7 +44,7 @@ func GetValue(key string, acc *users.Account) ActionResponce {
 
 }
 
-func SetValues(key string, acc *users.Account, value_type string, data string, encrypt bool) ActionResponce {
+func SetValues(acc *users.Account, key string, value_type string, data string, encrypt bool) ActionResponce {
 
 	if acc.CanAdd() {
 		var err error = nil
@@ -136,7 +141,7 @@ func StartKeyDB(acc *users.Account, dev bool, start_web bool, port string, start
 
 }
 
-func SetRouter(acc *users.Account) ActionResponce {
+func setRouter(acc *users.Account) ActionResponce {
 	if acc.IsAdmin() {
 		router = gin.New()
 		RouterSetupFunc(router)
@@ -152,7 +157,7 @@ func StartRemote(acc *users.Account, dev bool, port string) ActionResponce {
 	if acc.IsAdmin() {
 
 		if !router_set {
-			SetRouter(acc)
+			setRouter(acc)
 		}
 
 		if dev {
@@ -171,7 +176,7 @@ func StartRemote(acc *users.Account, dev bool, port string) ActionResponce {
 func StartUnix(acc *users.Account) ActionResponce {
 	if acc.IsAdmin() {
 		if !router_set {
-			SetRouter(acc)
+			setRouter(acc)
 		}
 
 		listener, err := net.Listen("unix", "/tmp/keydb_sock.sock")

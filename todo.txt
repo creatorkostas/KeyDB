@@ -4,6 +4,7 @@ TODO: Add recreate data from aof
 TODO: Add save to firestore
 TODO: Test RSA encryption decryption\
 TODO: Check how I want to handle the encryption & decryption
+TODO: Return and handle erros
 DONE: Add encrypt responce
 DONE: Add RSA keys creation
 DONE: Add support for encrypted request

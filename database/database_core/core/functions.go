@@ -136,14 +136,14 @@ func Get_value(table string, key string, get_raw bool) any {
 			var data = string(stored_data.Data)
 			return data
 		case INT_FLOAT32:
-			// Is still saved as float64. It needs to be changes in the AddValue function
 			var data, _ = dataConvert[float32](stored_data.Data)
 			return data
 		case INT_FLOAT64:
 			var data, _ = dataConvert[float64](stored_data.Data)
 			return data
 		case INT_BOOL:
-			return *(*bool)(unsafe.Pointer(&stored_data.Data))
+			var data, _ = dataConvert[bool](stored_data.Data)
+			return data
 		case INT_ENCRYPTED_DATA:
 			return stored_data.Data
 		default:
