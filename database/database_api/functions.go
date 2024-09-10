@@ -128,7 +128,7 @@ func StartKeyDB(acc *users.Account, dev bool, start_web bool, port string, start
 		persistance.Start_writers(conf.Number_of_writers)
 
 		if start_web {
-			StartRemote(acc, dev, port)
+			StartWeb(acc, dev, port)
 		}
 
 		if start_unix {
@@ -153,7 +153,7 @@ func setRouter(acc *users.Account) ActionResponce {
 	return ActionResponce{Error: errors.New("not admin"), Code: http.StatusUnauthorized, From: "setRouter", Description: "Set router"}
 }
 
-func StartRemote(acc *users.Account, dev bool, port string) ActionResponce {
+func StartWeb(acc *users.Account, dev bool, port string) ActionResponce {
 	if acc.IsAdmin() {
 
 		if !router_set {

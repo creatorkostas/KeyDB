@@ -6,6 +6,7 @@ import (
 
 	api "github.com/creatorkostas/KeyDB/database/database_api"
 	"github.com/creatorkostas/KeyDB/database/database_core/users"
+	"github.com/creatorkostas/KeyDB/internal/tools"
 )
 
 // GetValue(key , acc )
@@ -135,20 +136,78 @@ func TestGetValue(t *testing.T) {
 
 }
 
-func TestChangeApiKey(t *testing.T) { t.SkipNow() }
+func TestChangeApiKey(t *testing.T) {
+	setTestUser()
+	var acc = (api.GetAccount(&local_acc, "test")).Description.(*users.Account)
+	var current_api_key = acc.UserInfo.Api_key
+	acc.ChangeApiKey()
+	if acc.UserInfo.Api_key == current_api_key {
+		t.Fatalf("ChangeApiKey failed")
+	}
+}
 
-func TestChangePassword(t *testing.T) { t.SkipNow() }
+func TestChangePassword(t *testing.T) {
+	setTestUser()
+	var acc = (api.GetAccount(&local_acc, "test")).Description.(*users.Account)
+	var current_password = acc.UserInfo.Password
+	acc.ChangePassword("new password")
+	if acc.UserInfo.Password == current_password {
+		t.Fatalf("ChangePassword failed")
+	}
+}
 
-func TestSave(t *testing.T) { t.SkipNow() }
+func TestSave(t *testing.T) {
+	var resp = api.Save(&local_acc)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "Save" {
+		t.Fatalf("Save failed")
+	}
+}
 
-func TestLoad(t *testing.T) { t.SkipNow() }
+func TestLoad(t *testing.T) {
+	var resp = api.Load(&local_acc)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "Load" {
+		t.Fatalf("Load failed")
+	}
+}
 
-func TestStartKeyDB(t *testing.T) { t.SkipNow() }
+func TestStartKeyDB(t *testing.T) {
+	var resp = api.StartKeyDB(&local_acc, true, false, "8080", false)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "StartKeyDB" {
+		t.Fatalf("StartKeyDB failed")
+	}
+}
 
-func TestStartRemote(t *testing.T) { t.SkipNow() }
+func TestStartWeb(t *testing.T) {
+	t.SkipNow()
+	var resp = api.StartWeb(&local_acc, true, "8080")
+	api.StopWeb(&local_acc)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "StartRemote" {
+		t.Fatalf("StartRemote failed")
+	}
+}
 
-func TestStartUnix(t *testing.T) { t.SkipNow() }
+func TestStartUnix(t *testing.T) {
+	t.SkipNow()
+	var resp = api.StartUnix(&local_acc)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "StartUnix" {
+		t.Fatalf("StartUnix failed")
+	}
+}
 
-func TestStopWeb(t *testing.T) { t.SkipNow() }
+func TestStopWeb(t *testing.T) {
+	t.SkipNow()
+	var resp = api.StopWeb(&local_acc)
+	if resp.Error != nil || resp.Code != http.StatusOK || resp.From != "StopWeb" {
+		t.Fatalf("StopWeb failed")
+	}
+}
 
-func TestStopUnix(t *testing.T) { t.SkipNow() }
+func TestStopUnix(t *testing.T) {
+	t.SkipNow()
+	api.StopUnix()
+}
+
+func TestCleanUp(t *testing.T) {
+	tools.DeleteFile("db.gob")
+	tools.DeleteFile("accounts.gob")
+}

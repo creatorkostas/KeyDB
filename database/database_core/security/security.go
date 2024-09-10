@@ -12,12 +12,12 @@ func Encrypt_data(rsa_key string, data []byte) []byte {
 	publicKeyBlock, _ := pem.Decode([]byte(rsa_key))
 	publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
 	if err != nil {
-		panic(err)
+		panic("Piblic key error: " + err.Error())
 	}
 
 	encrypted_data, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey.(*rsa.PublicKey), data)
 	if err != nil {
-		panic(err)
+		panic("Encryption error: " + err.Error())
 	}
 
 	return encrypted_data

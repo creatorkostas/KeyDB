@@ -94,7 +94,7 @@ func (acc *Account) CanChangePassword() bool {
 
 func (acc *Account) ChangePassword(new_password string) bool {
 	var new_pass string = hash(new_password)
-	acc.UserInfo.Api_key = new_pass
+	acc.UserInfo.Password = new_pass
 	return true
 }
 

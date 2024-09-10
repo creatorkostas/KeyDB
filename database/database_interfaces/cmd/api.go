@@ -102,11 +102,11 @@ func Cmd_start(user *users.Account) {
 			case "startwebdev":
 				var port string
 				port = print_and_get("Port: ")
-				api.StartRemote(user, true, port)
+				api.StartWeb(user, true, port)
 			case "startweb":
 				var port string
 				port = print_and_get("Port: ")
-				api.StartRemote(user, false, port)
+				api.StartWeb(user, false, port)
 			case "startunix":
 				api.StartUnix(user)
 			case "exit":
