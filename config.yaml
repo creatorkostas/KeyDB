@@ -3,4 +3,8 @@ Accounts_filename: accounts.gob
 Send_all_errors_in_requests: true
 Append_only_in_file: false
 Append_file: aof.op
+StartWeb: false
+StartUnix: false
+WebPort: "8080"
+Number_of_writers: 1
 # Append_size: 64

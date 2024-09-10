@@ -46,3 +46,12 @@ func LoadFromFile(filename string, data any) error {
 
 	return nil
 }
+
+func DeleteFile(filename string) error {
+	err := os.Remove(filename)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}

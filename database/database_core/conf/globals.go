@@ -20,6 +20,12 @@ var Append_file string = "aof.txt"
 const Append_size int = 64
 
 var Web_Enable_admin_register = true
+var WebPort = "8080"
+
+var StartWeb = true
+var StartUnix = false
+
+var Number_of_writers = 1
 
 type configs struct {
 	DB_filename                 string `yaml:"DB_filename"`
@@ -27,6 +33,10 @@ type configs struct {
 	Send_all_errors_in_requests bool   `yaml:"Send_all_errors_in_requests"`
 	Append_file                 string `yaml:"Append_file"`
 	Append_only_in_file         bool   `yaml:"Append_only_in_file"`
+	StartWeb                    bool   `yaml:"StartWeb"`
+	StartUnix                   bool   `yaml:"StartUnix"`
+	WebPort                     string `yaml:"WebPort"`
+	Number_of_writers           int    `yaml:"Number_of_writers"`
 	// Append_size string  `yaml:"MakefileName"`
 }
 
@@ -53,5 +63,9 @@ func Load_configs(path string) {
 	Send_all_errors_in_requests = conf.Send_all_errors_in_requests
 	Append_only_in_file = conf.Append_only_in_file
 	Append_file = conf.Append_file
+	StartWeb = conf.StartWeb
+	StartUnix = conf.StartUnix
+	WebPort = conf.WebPort
+	Number_of_writers = conf.Number_of_writers
 	// Append_size = conf.Append_size
 }

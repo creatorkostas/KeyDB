@@ -5,8 +5,12 @@ import (
 	"os"
 	"strconv"
 
-	cmd_api "github.com/creatorkostas/KeyDB/database/database_api/cmd"
+	"github.com/creatorkostas/KeyDB/database/database_core/conf"
 	internal "github.com/creatorkostas/KeyDB/database/database_core/conf"
+	"github.com/creatorkostas/KeyDB/database/database_core/users"
+	cmd_interface "github.com/creatorkostas/KeyDB/database/database_interfaces/cmd"
+	web_interface "github.com/creatorkostas/KeyDB/database/database_interfaces/web"
+	// cmd_api "github.com/creatorkostas/KeyDB/database/database_interfaces/cmd_interface"
 	// "github.com/creatorkostas/KeyDB/internal/database/database_test"
 )
 
@@ -39,10 +43,12 @@ import (
 func main() {
 
 	cmd := false
+	unix := false
 	devMode := false
 	conf_path := "config.yaml"
 	flag.BoolVar(&devMode, "dev", devMode, "enable dev mode")
 	flag.BoolVar(&cmd, "cmd", cmd, "enable cmd mode")
+	flag.BoolVar(&unix, "unix", unix, "enable communication through unix port (/tmp/keydb_sock.sock)")
 	flag.StringVar(&conf_path, "conf", conf_path, "Set the config file")
 	flag.Parse()
 
@@ -50,14 +56,21 @@ func main() {
 	// initialize()
 	var port = os.Getenv("PORT")
 
+	conf.StartUnix = unix
+	var local_acc users.Account = users.MakeDefaultUser()
+	local_acc.MakeAdmin()
+	local_acc.Username = "Local cmd admin account"
+
 	if port == "" {
-		cmd_api.StartKeyDB(devMode, true, strconv.Itoa(8080))
+		cmd_interface.StartKeyDB(&local_acc, devMode, conf.StartWeb, strconv.Itoa(8080), conf.StartUnix, web_interface.Setup_router, web_interface.Add_endpoints)
 	} else {
-		cmd_api.StartKeyDB(devMode, true, port)
+		cmd_interface.StartKeyDB(&local_acc, devMode, conf.StartWeb, port, conf.StartUnix, web_interface.Setup_router, web_interface.Add_endpoints)
 	}
 
 	if cmd {
-		cmd_api.Cmd_start()
+		conf.Number_of_writers = 0
+		cmd_interface.StartKeyDB(&local_acc, devMode, false, port, false, web_interface.Setup_router, web_interface.Add_endpoints)
+		cmd_interface.Cmd_start(&local_acc)
 	}
 	// router.Run(":8080")
 }

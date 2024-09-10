@@ -1,13 +1,13 @@
-# go_key_database
+# KeyDB
 
 A simple key value memory database in go with the ability to save/load in/from file
 
 #### Warning
-This project is under development os they are some bugs
+This project is under development so they are some bugs
 
 #### Bugs
 
-- Set/Get value other than string, bool some times don't work
+- Encryption is not working (so it is disabled for now)
 
 ### Usage
 

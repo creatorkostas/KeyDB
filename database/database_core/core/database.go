@@ -5,19 +5,21 @@ import (
 )
 
 const (
-	INT     = "int"
-	STRING  = "string"
-	FLOAT32 = "float32"
-	FLOAT64 = "float64"
-	BOOL    = "bool"
+	INT            = "int"
+	STRING         = "string"
+	FLOAT32        = "float32"
+	FLOAT64        = "float64"
+	BOOL           = "bool"
+	ENCRYPTED_DATA = "encrypted_data"
 )
 
 const (
-	INT_INT     = 0
-	INT_STRING  = 1
-	INT_FLOAT32 = 2
-	INT_FLOAT64 = 3
-	INT_BOOL    = 4
+	INT_INT            = 0
+	INT_STRING         = 1
+	INT_FLOAT32        = 2
+	INT_FLOAT64        = 3
+	INT_BOOL           = 4
+	INT_ENCRYPTED_DATA = 5
 )
 
 var m = sync.RWMutex{}

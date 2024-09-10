@@ -1,6 +1,10 @@
 package users
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"strings"
 	"time"
 )
@@ -27,7 +31,37 @@ type UserInfo struct {
 type Account struct {
 	UserInfo
 	AccountState
-	Tier Tier
+	Tier       Tier
+	Public_key string
+}
+
+func (acc *Account) create_RSA_keys() string {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		panic(err)
+	}
+
+	publicKey := &privateKey.PublicKey
+
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	})
+
+	// privateKey
+
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		panic(err)
+	}
+	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	})
+	acc.Public_key = string(publicKeyPEM)
+
+	return string(privateKeyPEM)
 }
 
 func (acc *Account) ToSting() string {
@@ -60,7 +94,7 @@ func (acc *Account) CanChangePassword() bool {
 
 func (acc *Account) ChangePassword(new_password string) bool {
 	var new_pass string = hash(new_password)
-	acc.UserInfo.Api_key = new_pass
+	acc.UserInfo.Password = new_pass
 	return true
 }
 
@@ -80,28 +114,28 @@ func (acc *Account) CanGetAnalytics() bool {
 
 func MakeDefaultUser() Account {
 	var acc Account
-	acc.Tier.Type = DEFAULT
-	acc.Tier.Rules = Default_rules
+	acc.Tier = Default_tier
 	acc.AccountState = Default_state
 	return acc
 }
 
 func (acc *Account) MakeAdmin() {
-	acc.Tier.Type = ADMIN
-	acc.Tier.Rules = Admin_rules
 	acc.AccountState = Admin_state
+	acc.Tier = Admin_tier
 }
 
 func (acc *Account) MakeUser() {
-	acc.Tier.Type = USER
-	acc.Tier.Rules = User_rules
 	acc.AccountState = User_state
+	acc.Tier = User_tier
 }
 
 func (acc *Account) MakeGuestUser() {
-	acc.Tier.Type = GUEST_USER
-	acc.Tier.Rules = Guest_user_rules
-	acc.AccountState = Free_user_state
+	acc.AccountState = Guest_user_state
+	acc.Tier = Guest_user_tier
+}
+
+func GetAllAccounts() map[string]Account {
+	return accounts
 }
 
 // var Accounts = make([]Account, 50)
