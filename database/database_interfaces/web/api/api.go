@@ -30,6 +30,9 @@ func GetValue(c *gin.Context) {
 		encrypt_bool = true
 	}
 
+	// Skip encryption for now
+	encrypt_bool = false
+
 	var result any
 	if key_found {
 		result = database.Get_value(acc.Username, key, encrypt_bool)
@@ -54,43 +57,50 @@ func SetValues(c *gin.Context) {
 	var data string
 	var data_found bool
 
-	var encrypt, encrypt_found = c.GetQuery("encrypted")
-	var encrypt_bool bool
-	if encrypt_found {
-		if encrypt == "0" || encrypt == "false" {
-			encrypt_bool = false
-		} else if encrypt == "1" || encrypt == "true" {
-			encrypt_bool = true
-		}
-	} else {
-		encrypt_bool = false
-	}
+	// ------------------------ Encryption -----------------------------------------
 
-	var encrypt_on_save, encrypt_on_save_found = c.GetQuery("encrypt_on_save")
-	var encrypt_on_save_bool bool
-	if encrypt_on_save_found {
-		if encrypt_on_save == "0" || encrypt_on_save == "false" {
-			encrypt_on_save_bool = false
-		} else if encrypt_on_save == "1" || encrypt_on_save == "true" {
-			encrypt_on_save_bool = true
-		}
-	} else {
-		encrypt_bool = false
-	}
+	// var encrypt, encrypt_found = c.GetQuery("encrypted")
+	// var encrypt_bool bool
+	// if encrypt_found {
+	// 	if encrypt == "0" || encrypt == "false" {
+	// 		encrypt_bool = false
+	// 	} else if encrypt == "1" || encrypt == "true" {
+	// 		encrypt_bool = true
+	// 	}
+	// } else {
+	// 	encrypt_bool = false
+	// }
 
-	if encrypt_found && encrypt_bool {
-		data, data_found = c.GetQuery("value")
-		data = security.Decrypt_data(acc.Public_key, []byte(data))
-	} else {
-		data, data_found = c.GetQuery("value")
-	}
+	// var encrypt_on_save, encrypt_on_save_found = c.GetQuery("encrypt_on_save")
+	// var encrypt_on_save_bool bool
+	// if encrypt_on_save_found {
+	// 	if encrypt_on_save == "0" || encrypt_on_save == "false" {
+	// 		encrypt_on_save_bool = false
+	// 	} else if encrypt_on_save == "1" || encrypt_on_save == "true" {
+	// 		encrypt_on_save_bool = true
+	// 	}
+	// } else {
+	// 	encrypt_bool = false
+	// }
+
+	// if encrypt_found && encrypt_bool {
+	// 	data, data_found = c.GetQuery("value")
+	// 	data = security.Decrypt_data(acc.Public_key, []byte(data))
+	// } else {
+	// 	data, data_found = c.GetQuery("value")
+	// }
+
+	// ----------------------------------------------------------------------------
+
+	data, data_found = c.GetQuery("value")
 
 	var error_message string = "Something went wrong!"
 	var error_code int = http.StatusInternalServerError
 	var err error = nil
 
 	if key_found && value_type_found && data_found {
-		err = database.Add_value(acc.Username, key, value_type, data, encrypt_bool, encrypt_on_save_bool, "")
+		err = database.Add_value(acc.Username, key, value_type, data, false, false, "")
+		// err = database.Add_value(acc.Username, key, value_type, data, encrypt_bool, encrypt_on_save_bool, "")
 	} else {
 		error_message = fmt.Sprintf(
 			"Missings parameters!! key found: %s , value_type found: %s , data found: %s",
