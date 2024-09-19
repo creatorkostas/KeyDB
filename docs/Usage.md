@@ -8,7 +8,7 @@
 ### Register a new user
 - Register a new user and return the accound data as JSON 
 
-```/api/v1/register?username={USERNAME}&email={EMAIL}&password={PASSWORD}&type=User```
+```/api/v1/register?username={USERNAME}&email={EMAIL}&password={PASSWORD}&type={TYPE}```
 > Method: GET
 
 Fields:
